@@ -1,0 +1,13 @@
+{
+  "name": "trusttrace-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TrustTrace local startup, chain synchronization, and test runner",
+  "scripts": {
+    "dev:local": "powershell -ExecutionPolicy Bypass -File ./start-local.ps1",
+    "sync:local-chain": "npm --prefix backend run sync:local-chain",
+    "test:backend": "npm --prefix backend test",
+    "test:contracts": "npm --prefix trusttrace-blockchain test",
+    "build:frontend": "npm --prefix frontend run build"
+  }
+}

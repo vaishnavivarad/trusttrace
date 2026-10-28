@@ -1,0 +1,23 @@
+{
+  "dataset": "GroceryStoreDataset",
+  "repository": "https://github.com/marcusklasson/GroceryStoreDataset.git",
+  "total_referenced": 5421,
+  "total_valid_images": 5421,
+  "num_classes": 81,
+  "split_counts": {
+    "train": 2640,
+    "validation": 296,
+    "test": 2485
+  },
+  "packaged_item_counts_by_split": {
+    "train": 864,
+    "validation": 100,
+    "test": 781
+  },
+  "missing_images_count": 0,
+  "missing_images": [],
+  "corrupt_images_count": 0,
+  "corrupt_images": [],
+  "cross_split_path_leakage": [],
+  "manifest_path": "dataset\\metadata\\grocery_manifest.csv"
+}

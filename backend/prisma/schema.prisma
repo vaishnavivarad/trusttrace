@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String
+  status       String   @default("ACTIVE")
+  walletAddress String? @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@index([role])
+}
+
+model ManufacturerApplication {
+  id           String   @id
+  userId       String
+  companyName  String
+  businessEmail String
+  contactName  String
+  category     String
+  walletAddress String
+  status       String   @default("PENDING")
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  reviewNote   String?
+  authorizationTxHash String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@index([userId])
+  @@index([status])
+  @@index([walletAddress])
+}
+
+model Product {
+  id                 String   @id
+  productId          String   @unique
+  name               String
+  brand              String
+  category           String
+  sku                String
+  batchNumber        String
+  unitSerial         String
+  manufactureDate    String?
+  expiryDate         String?
+  manufacturerUserId String
+  manufacturerWallet String
+  referenceImageCID  String
+  metadataCID        String?
+  metadataHash       String?
+  chainId            String?
+  contractAddress    String?
+  txHash             String?
+  qrFilename         String?
+  qrUrl              String?
+  status             String   @default("REGISTERED")
+  createdAt          DateTime @default(now())
+  @@unique([manufacturerUserId, batchNumber, unitSerial])
+  @@index([manufacturerUserId])
+  @@index([category])
+}
+
+model VerificationSession {
+  id            String   @id
+  productId     String
+  userId        String?
+  status        String   @default("IN_PROGRESS")
+  gate1Status   String   @default("NOT_CHECKED")
+  gate2Status   String   @default("NOT_CHECKED")
+  gate3Status   String   @default("NOT_CHECKED")
+  overallStatus String   @default("IN_PROGRESS")
+  reasonCode    String?
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+  modelVersion  String?
+  @@index([productId, startedAt])
+  @@index([userId, startedAt])
+}
+
+model ScanEvent {
+  id                String   @id
+  productId         String
+  sessionId         String
+  userId            String?
+  serverReceivedAt  DateTime @default(now())
+  latitude          Float?
+  longitude         Float?
+  accuracyMeters    Float?
+  locationConsent   Boolean  @default(false)
+  previousScanId    String?
+  distanceKm        Float?
+  elapsedSeconds    Int?
+  estimatedSpeedKmh Float?
+  caspgStatus       String
+  reasonCode        String?
+  evidenceHash      String?
+  chainAuditTxHash  String?
+  @@index([productId, serverReceivedAt])
+  @@index([sessionId])
+}
+
+model ImageComparison {
+  id           String   @id
+  sessionId    String
+  referenceCID String
+  modelVersion String?
+  threshold    Float?
+  distanceScore Float?
+  qualityStatus String
+  result       String
+  createdAt    DateTime @default(now())
+  @@index([sessionId])
+}
+
+model AuditLog {
+  id          String   @id
+  actorUserId String?
+  action      String
+  targetType  String
+  targetId    String?
+  status      String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  @@index([actorUserId, createdAt])
+  @@index([targetType, targetId])
+}

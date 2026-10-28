@@ -1,0 +1,23 @@
+{
+  "model_file": "models\\siamese_mobilenetv2.keras",
+  "architecture": "Siamese MobileNetV2 (shared weights) + EuclideanDistance",
+  "selected_model_stage": "stage1_frozen_backbone",
+  "input_dimensions": [
+    224,
+    224,
+    3
+  ],
+  "embedding_dim": 128,
+  "preprocessing": "tf.keras.applications.mobilenet_v2.preprocess_input",
+  "distance_threshold": 0.4270653732120991,
+  "threshold_selected_on": "validation",
+  "threshold_selection_rule": "validation_fpr_le_0.10_max_recall",
+  "training_command": "scripts/train_siamese.py --pairs dataset/metadata/grocery_pairs.csv --image-root dataset/external/GroceryStoreDataset/dataset --out-dir models --epochs 8 --fine-tune-epochs 5 --max-val-fpr 0.10",
+  "dependencies": {
+    "python": "3.11.9",
+    "tensorflow": "2.17.1",
+    "numpy": "1.26.4",
+    "pandas": "3.0.6",
+    "scikit_learn": "1.9.1"
+  }
+}

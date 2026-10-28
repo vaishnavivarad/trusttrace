@@ -1,0 +1,11 @@
+{
+  "network": "localhost",
+  "chainId": "31337",
+  "contractName": "ProductAuth",
+  "contractAddress": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "deployerAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "deploymentTxHash": "0x854377687baeab63e6be8570156f7ae8084e5d49a41f406e5c70f30246b6a952",
+  "bytecodeBytes": 11866,
+  "blockNumber": 0,
+  "updatedAt": "2026-10-28T12:43:34.343Z"
+}

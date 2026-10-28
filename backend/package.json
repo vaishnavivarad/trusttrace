@@ -1,0 +1,32 @@
+{
+  "name": "trusttrace-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TrustTrace product registration and three-layer verification API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed:admin": "node scripts/seedAdmin.js",
+    "sync:local-chain": "node scripts/syncLocalChainState.js",
+    "sync:mst": "node scripts/syncMstState.js",
+    "qr:regenerate": "node scripts/regenerateQrCodes.js",
+    "test": "node --test --test-concurrency=1",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "ethers": "^6.17.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "multer": "^2.0.2",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "prisma": "^6.8.2"
+  }
+}

@@ -1,0 +1,13 @@
+
+{
+  "compilerOptions": {
+    "lib": ["es2023"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "es2023",
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "types": ["node", "mocha"],
+    "verbatimModuleSyntax": true
+  }
+}

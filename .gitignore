@@ -1,0 +1,37 @@
+# Dependencies and generated build artifacts
+node_modules/
+**/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+backend/coverage/
+trusttrace-blockchain/artifacts/
+trusttrace-blockchain/cache/
+trusttrace-blockchain/coverage/
+**/__pycache__/
+*.py[cod]
+ml-service/.venv/
+ml-service/models/*.keras
+ml-service/models/threshold.json
+ml-service/models/evaluation_report.json
+
+# Local secrets and runtime data
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+backend/data/trusttrace-store.json
+backend/uploads/qr_codes/*
+
+# Editor / logs
+.vscode/
+.idea/
+*.log
+.DS_Store
+
+# Local TrustTrace runtime data
+/backend/data/*.tmp
+
+# Hardhat generated deployment files
+/trusttrace-blockchain/ignition/deployments/

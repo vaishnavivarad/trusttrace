@@ -1,0 +1,9 @@
+dataset/
+scripts/
+__pycache__/
+*.pyc
+.env
+models/best_*.keras
+models/*.h5
+models/*.download
+

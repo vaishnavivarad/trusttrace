@@ -1,0 +1,12 @@
+# Exclude downloaded datasets, raw packaging images, trained binary weights, and secrets
+.env
+__pycache__/
+*.pyc
+dataset/external/
+dataset/images/**/*.jpg
+dataset/images/**/*.jpeg
+dataset/images/**/*.png
+dataset/images/**/*.webp
+models/*.keras
+models/*.h5
+

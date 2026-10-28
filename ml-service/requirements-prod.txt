@@ -1,0 +1,9 @@
+# Inference-only dependencies for cloud deployment (training uses requirements.txt).
+# tensorflow-cpu avoids pulling CUDA/GPU wheels into the container image.
+fastapi
+uvicorn[standard]
+python-multipart
+Pillow
+numpy
+tensorflow-cpu>=2.16,<3
+
