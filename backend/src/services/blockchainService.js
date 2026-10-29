@@ -98,13 +98,40 @@ function readContract() {
   const ethers = ethersLib();
   return new ethers.Contract(getConfiguredContractAddress(), ABI, p);
 }
+const HARDHAT_DEMO_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+function getRelayerPrivateKey() {
+  const expectedChain = String(process.env.BLOCKCHAIN_CHAIN_ID || '').trim();
+  const mstKey = String(process.env.MST_DEPLOYER_PRIVATE_KEY || '').trim();
+  const relayerKey = String(process.env.BLOCKCHAIN_RELAYER_PRIVATE_KEY || '').trim();
+  let raw = (expectedChain && expectedChain !== '31337' && mstKey) ? mstKey : (relayerKey || mstKey);
+  if (!raw) return '';
+  if (!raw.startsWith('0x')) raw = `0x${raw}`;
+  if (expectedChain && expectedChain !== '31337' && raw.toLowerCase() === HARDHAT_DEMO_KEY) {
+    throw new Error('BLOCKCHAIN_RELAYER_PRIVATE_KEY is still set to the local Hardhat demo key. Set your MST Testnet deployer private key in backend/.env.');
+  }
+  return raw;
+}
 function writeContract() {
-  const key = process.env.BLOCKCHAIN_RELAYER_PRIVATE_KEY;
+  const key = getRelayerPrivateKey();
   if (!key) throw new Error('BLOCKCHAIN_RELAYER_PRIVATE_KEY is missing. Set a dedicated local/testnet relayer key to write on-chain records.');
   const p = provider();
   const ethers = ethersLib();
   const wallet = new ethers.Wallet(key, p);
   return new ethers.Contract(getConfiguredContractAddress(), ABI, wallet);
+}
+async function txOverrides() {
+  const expectedChain = String(process.env.BLOCKCHAIN_CHAIN_ID || '').trim();
+  if (expectedChain === '54635' || expectedChain === '4646') {
+    const p = provider();
+    const minGasPrice = 1_000_000_000n;
+    let gasPrice = minGasPrice;
+    try {
+      const feeData = await p.getFeeData();
+      if (feeData.gasPrice && feeData.gasPrice > minGasPrice) gasPrice = feeData.gasPrice;
+    } catch { /* fallback to 1 gwei */ }
+    return { type: 0, gasPrice };
+  }
+  return {};
 }
 async function ensureContractDeployed() {
   const p = provider();
@@ -213,7 +240,7 @@ async function authorizeManufacturer(address) {
   if (!ethers.isAddress(address)) throw new Error('Manufacturer wallet address is invalid.');
   await ensureContractDeployed();
   const contract = writeContract();
-  const tx = await contract.authorizeManufacturer(address);
+  const tx = await contract.authorizeManufacturer(address, await txOverrides());
   const receipt = await tx.wait();
   if (!receipt || receipt.status !== 1) throw new Error('Manufacturer authorization transaction failed.');
   const confirmed = await isAuthorizedManufacturer(address);
@@ -225,7 +252,7 @@ async function revokeManufacturer(address) {
   if (!ethers.isAddress(address)) throw new Error('Manufacturer wallet address is invalid.');
   await ensureContractDeployed();
   const contract = writeContract();
-  const tx = await contract.revokeManufacturer(address);
+  const tx = await contract.revokeManufacturer(address, await txOverrides());
   const receipt = await tx.wait();
   if (!receipt || receipt.status !== 1) throw new Error('Manufacturer revocation transaction failed.');
   return { txHash: receipt.hash || tx.hash, blockNumber: receipt.blockNumber };
@@ -248,7 +275,8 @@ async function registerProductOnChain(product, cids, metadataHash) {
     cids.referenceImageCID,
     cids.metadataCID || '',
     metadataHash,
-    product.manufacturerWallet
+    product.manufacturerWallet,
+    await txOverrides()
   );
   const receipt = await tx.wait();
   if (!receipt || receipt.status !== 1) throw new Error('Product registration transaction failed on-chain.');
@@ -291,7 +319,7 @@ async function recordScanAudit(productId, suspicious, speedKmh, evidenceHash) {
   const speedScaled = BigInt(Math.max(0, Math.round(Number(speedKmh || 0) * 100)));
   const hash = /^0x[0-9a-fA-F]{64}$/.test(evidenceHash || '') ? evidenceHash : ethers.keccak256(ethers.toUtf8Bytes(String(evidenceHash || '')));
   const contract = writeContract();
-  const tx = await contract.recordScanAudit(productId, Boolean(suspicious), speedScaled, hash);
+  const tx = await contract.recordScanAudit(productId, Boolean(suspicious), speedScaled, hash, await txOverrides());
   const receipt = await tx.wait();
   if (!receipt || receipt.status !== 1) throw new Error('The scan audit transaction failed.');
   return { txHash: receipt.hash || tx.hash, blockNumber: receipt.blockNumber, evidenceHash: hash };

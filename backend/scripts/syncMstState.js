@@ -13,7 +13,8 @@
  *
  * Usage: node scripts/syncMstState.js [--apply] [--allow-local-db] [--allow-mainnet]
  */
-require('dotenv').config({ path: process.env.DOTENV_CONFIG_PATH || undefined });
+const path = require('path');
+require('dotenv').config({ path: process.env.DOTENV_CONFIG_PATH || path.resolve(__dirname, '../.env') });
 const { ethers } = require('ethers');
 
 const args = new Set(process.argv.slice(2));
@@ -28,10 +29,11 @@ async function main() {
   const expected = String(process.env.BLOCKCHAIN_CHAIN_ID || '').trim();
   if (!ALLOWED_CHAINS[expected]) throw new Error(`BLOCKCHAIN_CHAIN_ID must be 54635 or 4646 (got "${expected}"). Use syncLocalChainState for 31337.`);
   if (expected === '4646' && !args.has('--allow-mainnet')) throw new Error('Mainnet sync requires --allow-mainnet and explicit approval.');
-  if (process.env.STORAGE_MODE !== 'postgres') throw new Error('STORAGE_MODE=postgres is required.');
-  if (isLocalDb(process.env.DATABASE_URL) && !args.has('--allow-local-db')) throw new Error('DATABASE_URL points at localhost. Refusing to rewrite local Hardhat rows; pass --allow-local-db only if intended.');
+  if (process.env.STORAGE_MODE === 'postgres' && isLocalDb(process.env.DATABASE_URL) && !args.has('--allow-local-db')) throw new Error('DATABASE_URL points at localhost. Refusing to rewrite local Hardhat rows; pass --allow-local-db only if intended.');
   if (!process.env.BLOCKCHAIN_CONTRACT_ADDRESS || !ethers.isAddress(process.env.BLOCKCHAIN_CONTRACT_ADDRESS)) throw new Error('BLOCKCHAIN_CONTRACT_ADDRESS must be the deployed MST ProductAuth address.');
-  if (!process.env.BLOCKCHAIN_RELAYER_PRIVATE_KEY) throw new Error('BLOCKCHAIN_RELAYER_PRIVATE_KEY is not set (set it in the environment; never commit it).');
+  let relayerKey = String(process.env.MST_DEPLOYER_PRIVATE_KEY || process.env.BLOCKCHAIN_RELAYER_PRIVATE_KEY || '').trim();
+  if (!relayerKey) throw new Error('BLOCKCHAIN_RELAYER_PRIVATE_KEY is not set (set it in backend/.env or $env:MST_DEPLOYER_PRIVATE_KEY).');
+  if (!relayerKey.startsWith('0x')) relayerKey = `0x${relayerKey}`;
 
   const provider = new ethers.JsonRpcProvider(process.env.BLOCKCHAIN_RPC_URL);
   const live = BigInt(await provider.send('eth_chainId', [])).toString(10);
@@ -42,7 +44,7 @@ async function main() {
 
   const store = require('../src/services/appStore');
   const blockchain = require('../src/services/blockchainService');
-  const signer = new ethers.Wallet(process.env.BLOCKCHAIN_RELAYER_PRIVATE_KEY, provider);
+  const signer = new ethers.Wallet(relayerKey, provider);
   const ro = new ethers.Contract(contractAddress, [...blockchain.ABI, 'function registeredUnitSerials(bytes32) view returns (bool)'], provider);
   const owner = await ro.owner();
   if (owner.toLowerCase() !== signer.address.toLowerCase()) throw new Error(`Relayer ${signer.address} is not the contract owner ${owner}; every write would revert.`);

@@ -10,7 +10,8 @@
     "test:solidity": "hardhat test solidity",
     "node:local": "hardhat node",
     "deploy:local": "hardhat ignition deploy ignition/modules/ProductAuth.ts --network localhost",
-    "deploy:coral": "hardhat ignition deploy ignition/modules/ProductAuth.ts --network mstCoralTestnet"
+    "deploy:coral": "node scripts/deployMst.mjs --coral",
+    "deploy:mainnet": "node scripts/deployMst.mjs --mainnet --confirm-mainnet"
   },
   "keywords": [],
   "author": "",

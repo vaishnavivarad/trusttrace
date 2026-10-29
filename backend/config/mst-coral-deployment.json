@@ -1,0 +1,14 @@
+{
+  "network": "MST Coral Testnet",
+  "chainId": 54635,
+  "rpcUrl": "https://coralrpc.mstblockchain.com",
+  "contractAddress": "0xb7A79C5437D00d32A8770a5905B5d1483c91A130",
+  "ownerAddress": "0xf2a09329717946c0846E47d7c7c189B356a0D9F3",
+  "deploymentTxHash": "0xebcbc2024180cd5819f97734de68f444dea03c02ca44c00c7375b5149f8131f0",
+  "blockNumber": 360076,
+  "gasUsed": "2683973",
+  "bytecodeBytes": 11866,
+  "explorerAddressUrl": "https://coral.mstscan.com/address/0xb7A79C5437D00d32A8770a5905B5d1483c91A130",
+  "explorerTxUrl": "https://coral.mstscan.com/tx/0xebcbc2024180cd5819f97734de68f444dea03c02ca44c00c7375b5149f8131f0",
+  "deployedAt": "2026-10-29T05:32:02.618Z"
+}

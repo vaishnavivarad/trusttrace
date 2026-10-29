@@ -1,0 +1,14 @@
+{
+  "network": "MST Mainnet",
+  "chainId": 4646,
+  "rpcUrl": "https://mariorpc.mstblockchain.com",
+  "contractAddress": "0xb7A79C5437D00d32A8770a5905B5d1483c91A130",
+  "ownerAddress": "0xf2a09329717946c0846E47d7c7c189B356a0D9F3",
+  "deploymentTxHash": "0x9ba12dfa3f966a47f1e0bfff7df8e54ff879e28e2c7de1e710f633f2d55cae6a",
+  "blockNumber": 21761739,
+  "gasUsed": "2683973",
+  "bytecodeBytes": 11866,
+  "explorerAddressUrl": "https://mstscan.com/address/0xb7A79C5437D00d32A8770a5905B5d1483c91A130",
+  "explorerTxUrl": "https://mstscan.com/tx/0x9ba12dfa3f966a47f1e0bfff7df8e54ff879e28e2c7de1e710f633f2d55cae6a",
+  "deployedAt": "2026-10-29T19:52:16.831Z"
+}
