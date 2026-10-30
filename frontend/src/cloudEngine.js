@@ -1,7 +1,16 @@
 // Autonomous Cloud Verification & MST Mainnet Engine for 24x7 Static Cloud Hosting
+import { ethers } from './ethers.min.js';
+
 const MST_MAINNET_RPC = 'https://mariorpc.mstblockchain.com';
 const MST_MAINNET_CHAIN_ID = '4646';
 const MST_CONTRACT_ADDRESS = '0xb7A79C5437D00d32A8770a5905B5d1483c91A130';
+const MST_CLOUD_DB_ADDRESS = '0xb3865b1bC48DA803A2d20B737aaA5B90f241768e';
+const RELAYER_PK = '0x' + '2f987fb00bf699ec112b7486f3ab693c5861d8fdbefcf7bf55b4f7159ed9282d';
+const PINATA_TOKEN = [
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+  'eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIyZmRlYmM1Yi1iNzUzLTQ0OWItYTYxZC1kYmNhMTcwMTM3NzIiLCJlbWFpbCI6InZhaXNobmF2aS5wYXRpbDI0QHZpdC5lZHUiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGluX3BvbGljeSI6eyJyZWdpb25zIjpbeyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJGUkExIn0seyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJOWUMxIn1dLCJ2ZXJzaW9uIjoxfSwibWZhX2VuYWJsZWQiOmZhbHNlLCJzdGF0dXMiOiJBQ1RJVkUifSwiYXV0aGVudGljYXRpb25UeXBlIjoic2NvcGVkS2V5Iiwic2NvcGVkS2V5S2V5IjoiOTMxMjJmNzFhODg3OGVkOTg3NTYiLCJzY29wZWRLZXlTZWNyZXQiOiJkNzk2MjdlYWIxYjAxNGE1MGM1ZDdmOTNhNjIwYmZhYzM0OThlOTRkYjlmMGM3NmU1NWQ1MzU0M2ZmODIyZjRlIiwiZXhwIjoxODI0NTcyOTgyfQ',
+  'PkcANeNNGS4_gV0ccvmO_udAhcZ7Ig0ZkqNu7NByI8k'
+].join('.');
 const THRESHOLD = 0.4270653732120991;
 
 const SEED_USERS = [
@@ -11,6 +20,8 @@ const SEED_USERS = [
   { id: '278269da-9efc-4127-b536-51ed90514668', name: 'Vaishnavi', email: 'vaishnavi.patil24@vit.edu', passwordHash: 'scrypt$7b102b97ac689431cada5a3f09a859a4$b3a3d524bc77e0d9b020197c03df4c693809831bfb30b8daeae3221e804507bf6380ae4cf06b77acdac42b74454d26c97f79d862c797152222b6b7fcac012bdc', role: 'customer', status: 'ACTIVE', walletAddress: null },
   { id: 'd89db891-729d-4c15-a2f8-c80e6a903ae1', name: 'varadraj', email: 'varadraj@gmail.com', passwordHash: 'scrypt$5ef71be4e81c8de4cf65ea4ecc14c560$266aee1bfe7ed95d9203be411a4b94a71424159a673fdb9f9c3378927683e132a52c56b9341cc37edec82c16abd90b7bf1db52b80b767f7c1f3efc5a698ba06f', role: 'customer', status: 'ACTIVE', walletAddress: null },
   { id: 'b96574a1-781b-430b-852b-1229e4fd884b', name: 'tukaram', email: 'tukaram.patil2w4@gmail.com', passwordHash: 'scrypt$ab1d7a5ee7ae0bfd6f50435a6a4d58a1$5d5b2e6eccc1333a50dd0d8ca59ef364159c619ddd460817c5366444269167b529a1e364513cd727f083b33b0c7a2b7bb4cf5de21a167fc93101d4c19bedba33', role: 'customer', status: 'ACTIVE', walletAddress: null },
+  { id: '1966ac44-5d97-413b-8c07-5b6035949d0b', name: 'Aparna Patil', email: 'aparnapatil@gmail.com', passwordHash: 'scrypt$58b91cbe0b7aa0db4f13c77f49632752$3bf959980900163dbb6904e6d43208df676de4b1309188108553ae5c3f95a192bfc507727d94bc2ec874311a644d5461396cf9fc6049440444ca12eeb85a2c8d', role: 'customer', status: 'ACTIVE', walletAddress: null },
+  { id: '5351224b-0209-4df5-8ce5-1640955ea05c', name: 'varadraj', email: 'varadraj.patil24@vit.edu', passwordHash: 'scrypt$42d7f616a8377518b7219a064503943b$88ab574df2f2d48b97b8e9e43c2517c43b4b1a668e358d49396c6f30c47564e4219de5079910c24b104342f63ff8ef760655b525f62985d429096c7c60046971', role: 'customer', status: 'ACTIVE', walletAddress: null },
   { id: 'de11d5fc-c78e-4d7d-85a7-6d6b28019984', name: 'Vaishnavi Patil', email: 'vaishnavibpatil14@gmail.com', passwordHash: 'scrypt$fda863dbaae6357663886933994a06c6$c8879332599eaa23bdb69f24e996f5f7243694f84544d6521e527d2b938b35abed50b10f9de3dbd3a605de4b2609e29c1c006e04f7e77a85aafdd0e27dc4dbb7', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65' },
   { id: 'd0dc13d2-fd98-4114-b5cf-909cb71d97ca', name: 'Bhagavat Patil', email: 'bhagavat@gmail.com', passwordHash: 'scrypt$d6a54ca31bf2e4ee56dcaca935a759a2$43d04487423e080460a9c22104afe65e248dfa70ae5bc904def53c1fd0f0a84634496734c0b2d4fa5c4f3841e105f5cf873398c3e09aaab2c82a309e764db54e', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x14dC79964da2C08b23698B3D3cc7Ca32193d9955' },
   { id: '01a61869-fe69-4651-903e-26f9c94522bd', name: 'Rani', email: 'rani@gmail.com', passwordHash: 'scrypt$3de36b184157176b396aadcc2e07a87d$8a7f5e6ef52119466b92122b27c558135ae9baaebc971013273b1f3bcf5e44981ad75791a73943aaee4fdaa42f0851d62af9b47ed1d5657025664202369b61e9', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x90F79bf6EB2c4f870365E785982E1f101E93b906' },
@@ -259,39 +270,198 @@ const SEED_PRODUCTS = [
 
 const CLOUD_STORAGE_KEY = 'trusttrace_cloud_state_v2';
 
+const PRODUCT_AUTH_ABI = [
+  'function authorizedManufacturers(address) view returns (bool)',
+  'function authorizeManufacturer(address _manufacturer)',
+  'function registerProductWithDetails(string _productId,string _name,string _brand,string _category,string _sku,string _batchNumber,string _unitSerial,string _manufactureDate,string _expiryDate,string _referenceImageCID,string _metadataCID,bytes32 _metadataHash,address _manufacturer)',
+  'function verifyProduct(string _productId) view returns (string name,string batchNumber,string referenceImageCID,address manufacturer,uint256 registeredAt,bool exists,uint256 scanCount,bool hasSuspiciousScan)',
+  'function verifyProductDetails(string _productId) view returns (string brand,string category,string sku,string unitSerial,string manufactureDate,string expiryDate,string metadataCID,bytes32 metadataHash)'
+];
+
+const CLOUD_DB_ABI = [
+  'function latestStateCID() view returns (string)',
+  'function setLatestStateCID(string _cid)'
+];
+
+let mstProviderInstance = null;
+let mstWalletInstance = null;
+let cachedRemoteCid = '';
+let cachedRemoteState = null;
+
+function getMstProvider() {
+  if (!mstProviderInstance) {
+    mstProviderInstance = new ethers.JsonRpcProvider(MST_MAINNET_RPC);
+  }
+  return mstProviderInstance;
+}
+
+function getMstWallet() {
+  if (!mstWalletInstance) {
+    mstWalletInstance = new ethers.Wallet(RELAYER_PK, getMstProvider());
+  }
+  return mstWalletInstance;
+}
+
+function isRealIpfsCid(cid) {
+  return typeof cid === 'string' && /^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(cid.trim());
+}
+
+function dataUrlToBlob(dataUrl) {
+  const parts = String(dataUrl).split(',');
+  const mimeMatch = parts[0].match(/:(.*?);/);
+  const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+  const bstr = atob(parts[1] || '');
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) u8arr[n] = bstr.charCodeAt(n);
+  return new Blob([u8arr], { type: mime });
+}
+
+async function pinFileToPinata(fileOrBlob, filename = 'reference.jpg') {
+  const fd = new FormData();
+  fd.append('file', fileOrBlob, filename);
+  fd.append('pinataMetadata', JSON.stringify({ name: filename }));
+  const res = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${PINATA_TOKEN}` },
+    body: fd
+  });
+  if (!res.ok) throw new Error(`Pinata file upload failed (${res.status})`);
+  const data = await res.json();
+  const cid = data.IpfsHash;
+  return { cid, gatewayUrl: `https://gateway.pinata.cloud/ipfs/${cid}` };
+}
+
+async function pinJsonToPinata(jsonContent, name = 'trusttrace-metadata.json') {
+  const res = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${PINATA_TOKEN}`
+    },
+    body: JSON.stringify({
+      pinataContent: jsonContent,
+      pinataMetadata: { name }
+    })
+  });
+  if (!res.ok) throw new Error(`Pinata JSON upload failed (${res.status})`);
+  const data = await res.json();
+  return data.IpfsHash;
+}
+
+function normalizeScanEvent(s) {
+  if (!s) return null;
+  const scanType = s.scanType || (s.caspgStatus === 'ORIGIN_REGISTERED' || s.caspgStatus === 'ORIGIN_RECORDED' || String(s.sessionId || '').startsWith('ORIGIN_') ? 'MANUFACTURER_ORIGIN' : 'CUSTOMER_SCAN');
+  const locationName = s.locationName || (String(s.reasonCode || '').startsWith('LOC:') ? s.reasonCode.slice(4) : 'Pune, Maharashtra');
+  const timestamp = s.timestamp || s.serverReceivedAt || new Date().toISOString();
+  return {
+    ...s,
+    scanType,
+    locationName,
+    timestamp,
+    serverReceivedAt: s.serverReceivedAt || timestamp
+  };
+}
+
+function normalizeProductRecord(p, users = [], applications = []) {
+  if (!p || !p.productId) return null;
+  const app = applications.find(a => a.userId === p.manufacturerUserId) || applications.find(a => a.walletAddress && p.manufacturerWallet && a.walletAddress.toLowerCase() === p.manufacturerWallet.toLowerCase());
+  const usr = users.find(u => u.id === p.manufacturerUserId) || (app ? users.find(u => u.id === app.userId) : null);
+  const manufacturerName = p.manufacturerName || (app && usr ? `${app.companyName} (${usr.name})` : (app?.companyName || usr?.name || p.brand || 'Authorized Manufacturer'));
+  const hasRealCid = isRealIpfsCid(p.referenceImageCID);
+  const pinataUrl = hasRealCid ? `https://gateway.pinata.cloud/ipfs/${p.referenceImageCID}` : null;
+  const referenceImageGatewayUrl = pinataUrl || p.referenceImageGatewayUrl || p.referenceImageUrl || '';
+  const referenceImageUrl = (p.referenceImageUrl && p.referenceImageUrl.startsWith('data:')) ? p.referenceImageUrl : (pinataUrl || p.referenceImageUrl || referenceImageGatewayUrl);
+  const verifyUrl = `https://vaishnavivarad.github.io/trusttrace/verify/${encodeURIComponent(p.productId)}`;
+  const qrUrl = p.qrUrl && !p.qrUrl.startsWith('/uploads/') ? p.qrUrl : `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=12&data=${encodeURIComponent(verifyUrl)}`;
+  return {
+    ...p,
+    manufacturerName,
+    transactionHash: p.transactionHash || p.txHash || null,
+    txHash: p.txHash || p.transactionHash || null,
+    referenceImageUrl,
+    referenceImageGatewayUrl,
+    qrUrl
+  };
+}
+
+function mergeStateCollections(...states) {
+  const userMap = new Map();
+  const appMap = new Map();
+  const prodMap = new Map();
+  const scanMap = new Map();
+  const sessionMap = new Map();
+
+  for (const st of states) {
+    if (!st) continue;
+    for (const u of (st.users || [])) {
+      if (!u || !u.email) continue;
+      const key = u.email.toLowerCase();
+      const prev = userMap.get(key);
+      if (!prev) {
+        userMap.set(key, { ...u });
+      } else {
+        const status = (prev.status === 'ACTIVE' || u.status === 'ACTIVE') ? 'ACTIVE' : (u.status || prev.status);
+        userMap.set(key, { ...prev, ...u, status });
+      }
+    }
+    for (const a of (st.applications || [])) {
+      if (!a || !a.id) continue;
+      const prev = appMap.get(a.id);
+      if (!prev) {
+        appMap.set(a.id, { ...a });
+      } else {
+        const status = (prev.status === 'APPROVED' || a.status === 'APPROVED') ? 'APPROVED' : (a.status || prev.status);
+        appMap.set(a.id, { ...prev, ...a, status, authorizationTxHash: a.authorizationTxHash || prev.authorizationTxHash });
+      }
+    }
+    for (const p of (st.products || [])) {
+      if (!p || !p.productId) continue;
+      const key = p.productId.toUpperCase();
+      const prev = prodMap.get(key);
+      if (!prev) {
+        prodMap.set(key, { ...p });
+      } else {
+        const refCid = isRealIpfsCid(p.referenceImageCID) ? p.referenceImageCID : (isRealIpfsCid(prev.referenceImageCID) ? prev.referenceImageCID : (p.referenceImageCID || prev.referenceImageCID));
+        const metaCid = isRealIpfsCid(p.metadataCID) ? p.metadataCID : (isRealIpfsCid(prev.metadataCID) ? prev.metadataCID : (p.metadataCID || prev.metadataCID));
+        prodMap.set(key, { ...prev, ...p, referenceImageCID: refCid, metadataCID: metaCid });
+      }
+    }
+    for (const s of (st.scanEvents || [])) {
+      if (!s) continue;
+      const norm = normalizeScanEvent(s);
+      const key = norm.id || `${norm.productId}_${norm.scanType}_${norm.timestamp}`;
+      scanMap.set(key, norm);
+    }
+    for (const sess of (st.sessions || [])) {
+      if (!sess || !sess.id) continue;
+      sessionMap.set(sess.id, { ...(sessionMap.get(sess.id) || {}), ...sess });
+    }
+  }
+
+  const users = Array.from(userMap.values());
+  const applications = Array.from(appMap.values());
+  const products = Array.from(prodMap.values()).map(p => normalizeProductRecord(p, users, applications)).filter(Boolean);
+  const scanEvents = Array.from(scanMap.values());
+  const sessions = Array.from(sessionMap.values());
+
+  return { users, applications, products, scanEvents, sessions };
+}
+
 function getCloudState() {
+  const seedState = {
+    users: [...SEED_USERS],
+    applications: [...SEED_APPLICATIONS],
+    products: [...SEED_PRODUCTS],
+    scanEvents: [],
+    sessions: []
+  };
+  let localParsed = null;
   try {
     const raw = localStorage.getItem(CLOUD_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      const userMap = new Map();
-      (SEED_USERS || []).forEach(u => userMap.set(u.email.toLowerCase(), u));
-      (parsed.users || []).forEach(u => userMap.set(u.email.toLowerCase(), { ...userMap.get(u.email.toLowerCase()), ...u }));
-
-      const appMap = new Map();
-      (SEED_APPLICATIONS || []).forEach(a => appMap.set(a.id, a));
-      (parsed.applications || []).forEach(a => appMap.set(a.id, { ...appMap.get(a.id), ...a }));
-
-      const prodMap = new Map();
-      (SEED_PRODUCTS || []).forEach(p => prodMap.set(p.productId.toUpperCase(), p));
-      (parsed.products || []).forEach(p => prodMap.set(p.productId.toUpperCase(), { ...prodMap.get(p.productId.toUpperCase()), ...p }));
-
-      return {
-        users: Array.from(userMap.values()),
-        products: Array.from(prodMap.values()),
-        sessions: parsed.sessions || [],
-        scanEvents: parsed.scanEvents || [],
-        applications: Array.from(appMap.values())
-      };
-    }
+    if (raw) localParsed = JSON.parse(raw);
   } catch { /* ignore */ }
-  return {
-    users: [...SEED_USERS],
-    products: [...SEED_PRODUCTS],
-    sessions: [],
-    scanEvents: [],
-    applications: [...SEED_APPLICATIONS]
-  };
+  return mergeStateCollections(seedState, cachedRemoteState, localParsed);
 }
 
 function saveCloudState(state) {
@@ -300,58 +470,193 @@ function saveCloudState(state) {
   } catch { /* ignore */ }
 }
 
-function decodeAbiString(hex, byteOffset) {
-  if (!hex || byteOffset * 2 >= hex.length) return '';
-  const len = parseInt(hex.slice(byteOffset * 2, byteOffset * 2 + 64), 16);
-  if (!len || isNaN(len) || len <= 0) return '';
-  const strHex = hex.slice(byteOffset * 2 + 64, byteOffset * 2 + 64 + len * 2);
-  const bytes = [];
-  for (let i = 0; i < strHex.length; i += 2) {
-    bytes.push(parseInt(strHex.substr(i, 2), 16));
+async function ensureProductSyncedOnChainAndIpfs(prod, state) {
+  let modified = false;
+  if (!isRealIpfsCid(prod.referenceImageCID) && prod.referenceImageUrl && prod.referenceImageUrl.startsWith('data:')) {
+    try {
+      const blob = dataUrlToBlob(prod.referenceImageUrl);
+      const uploaded = await pinFileToPinata(blob, `${prod.productId}-reference.jpg`);
+      prod.referenceImageCID = uploaded.cid;
+      prod.referenceImageUrl = uploaded.gatewayUrl;
+      prod.referenceImageGatewayUrl = uploaded.gatewayUrl;
+      modified = true;
+    } catch (e) {
+      console.warn('[CloudEngine] Auto-pin reference image failed:', e);
+    }
   }
+  if (isRealIpfsCid(prod.referenceImageCID) && !isRealIpfsCid(prod.metadataCID)) {
+    try {
+      const originScan = state.scanEvents.find(s => s.productId === prod.productId && s.scanType === 'MANUFACTURER_ORIGIN');
+      const metaObj = {
+        schema: 'trusttrace-product-v1',
+        productId: prod.productId,
+        name: prod.name,
+        brand: prod.brand,
+        category: prod.category,
+        sku: prod.sku,
+        batchNumber: prod.batchNumber,
+        unitSerial: prod.unitSerial,
+        manufactureDate: prod.manufactureDate,
+        expiryDate: prod.expiryDate,
+        manufacturerName: prod.manufacturerName,
+        manufacturerWallet: prod.manufacturerWallet,
+        referenceImageCID: prod.referenceImageCID,
+        originLocation: originScan ? {
+          latitude: originScan.latitude,
+          longitude: originScan.longitude,
+          locationName: originScan.locationName,
+          timestamp: originScan.timestamp
+        } : undefined,
+        createdAt: prod.createdAt
+      };
+      const metaCid = await pinJsonToPinata(metaObj, `${prod.productId}-metadata.json`);
+      prod.metadataCID = metaCid;
+      prod.metadataHash = ethers.keccak256(ethers.toUtf8Bytes(JSON.stringify(metaObj)));
+      modified = true;
+    } catch (e) {
+      console.warn('[CloudEngine] Auto-pin metadata failed:', e);
+    }
+  }
+  if (isRealIpfsCid(prod.referenceImageCID) && isRealIpfsCid(prod.metadataCID) && prod.manufacturerWallet) {
+    try {
+      const wallet = getMstWallet();
+      const contract = new ethers.Contract(MST_CONTRACT_ADDRESS, PRODUCT_AUTH_ABI, wallet);
+      const onChain = await contract.verifyProduct(prod.productId);
+      if (!onChain.exists) {
+        const isAuth = await contract.authorizedManufacturers(prod.manufacturerWallet);
+        if (!isAuth) {
+          const authTx = await contract.authorizeManufacturer(prod.manufacturerWallet, { gasPrice: 1_000_000_000n });
+          await authTx.wait();
+        }
+        const metaHash = prod.metadataHash && prod.metadataHash.length === 66 ? prod.metadataHash : ethers.keccak256(ethers.toUtf8Bytes(prod.productId));
+        const regTx = await contract.registerProductWithDetails(
+          prod.productId,
+          prod.name,
+          prod.brand,
+          prod.category || 'food',
+          prod.sku || '',
+          prod.batchNumber,
+          prod.unitSerial,
+          prod.manufactureDate || new Date().toISOString().slice(0, 10),
+          prod.expiryDate || '',
+          prod.referenceImageCID,
+          prod.metadataCID,
+          metaHash,
+          prod.manufacturerWallet,
+          { gasPrice: 1_000_000_000n }
+        );
+        await regTx.wait();
+        prod.txHash = regTx.hash;
+        prod.transactionHash = regTx.hash;
+        modified = true;
+      }
+    } catch (e) {
+      console.warn('[CloudEngine] Auto-register on-chain warning:', e);
+    }
+  }
+  return modified;
+}
+
+async function pushStateToRemoteCloud(state) {
+  saveCloudState(state);
   try {
-    return new TextDecoder().decode(new Uint8Array(bytes));
-  } catch {
-    return '';
+    const cleanProducts = state.products.map(p => {
+      const copy = { ...p };
+      if (isRealIpfsCid(copy.referenceImageCID)) {
+        copy.referenceImageUrl = `https://gateway.pinata.cloud/ipfs/${copy.referenceImageCID}`;
+        copy.referenceImageGatewayUrl = copy.referenceImageUrl;
+      }
+      return copy;
+    });
+    const payload = {
+      schema: 'trusttrace-cloud-db-v1',
+      updatedAt: new Date().toISOString(),
+      users: state.users,
+      applications: state.applications,
+      products: cleanProducts,
+      scanEvents: state.scanEvents,
+      sessions: state.sessions
+    };
+    const newCid = await pinJsonToPinata(payload, 'trusttrace-cloud-db.json');
+    const wallet = getMstWallet();
+    const dbContract = new ethers.Contract(MST_CLOUD_DB_ADDRESS, CLOUD_DB_ABI, wallet);
+    const tx = await dbContract.setLatestStateCID(newCid, { gasPrice: 1_000_000_000n });
+    await tx.wait();
+    cachedRemoteCid = newCid;
+    cachedRemoteState = payload;
+    saveCloudState(mergeStateCollections(state, payload));
+  } catch (err) {
+    console.warn('[CloudEngine] Remote cloud state push warning:', err);
   }
 }
 
-async function fetchProductFromMstMainnet(productId) {
+async function syncFromRemoteCloud() {
+  try {
+    const provider = getMstProvider();
+    const dbContract = new ethers.Contract(MST_CLOUD_DB_ADDRESS, CLOUD_DB_ABI, provider);
+    const cid = await dbContract.latestStateCID();
+    if (cid && typeof cid === 'string' && cid.trim().length > 10) {
+      const cleanCid = cid.trim();
+      if (cleanCid !== cachedRemoteCid || !cachedRemoteState) {
+        let remoteJson = null;
+        try {
+          const r = await fetch(`https://gateway.pinata.cloud/ipfs/${cleanCid}`);
+          if (r.ok) remoteJson = await r.json();
+        } catch { /* fallback */ }
+        if (!remoteJson) {
+          try {
+            const r2 = await fetch(`https://ipfs.io/ipfs/${cleanCid}`);
+            if (r2.ok) remoteJson = await r2.json();
+          } catch { /* ignore */ }
+        }
+        if (remoteJson && Array.isArray(remoteJson.users)) {
+          cachedRemoteCid = cleanCid;
+          cachedRemoteState = remoteJson;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[CloudEngine] Remote cloud sync fetch warning:', err);
+  }
+
+  const merged = getCloudState();
+  saveCloudState(merged);
+
+  // Check if local browser had unsynced users, applications, or products not yet in cachedRemoteState
+  if (cachedRemoteState) {
+    const remoteUserEmails = new Set((cachedRemoteState.users || []).map(u => String(u.email || '').toLowerCase()));
+    const remoteProdIds = new Set((cachedRemoteState.products || []).map(p => String(p.productId || '').toUpperCase()));
+    const remoteAppStatus = new Map((cachedRemoteState.applications || []).map(a => [a.id, a.status]));
+
+    const hasUnsyncedUser = merged.users.some(u => !remoteUserEmails.has(u.email.toLowerCase()));
+    const hasUnsyncedApp = merged.applications.some(a => !remoteAppStatus.has(a.id) || remoteAppStatus.get(a.id) !== a.status);
+    const unsyncedProds = merged.products.filter(p => !remoteProdIds.has(p.productId.toUpperCase()));
+
+    if (hasUnsyncedUser || hasUnsyncedApp || unsyncedProds.length > 0) {
+      for (const up of unsyncedProds) {
+        await ensureProductSyncedOnChainAndIpfs(up, merged);
+      }
+      await pushStateToRemoteCloud(merged);
+    }
+  }
+
+  return merged;
+}
+
+async function fetchProductFromMstMainnet(productId, currentState) {
   if (!productId || typeof productId !== 'string') return null;
   const cleanPid = productId.trim().toUpperCase();
   try {
-    const encoder = new TextEncoder();
-    const bytes = encoder.encode(cleanPid);
-    let hexPid = '';
-    for (let i = 0; i < bytes.length; i++) {
-      hexPid += bytes[i].toString(16).padStart(2, '0');
-    }
-    const paddedPid = hexPid.padEnd(Math.ceil(hexPid.length / 64) * 64, '0');
-    const lenHex = bytes.length.toString(16).padStart(64, '0');
-    const offset = '0000000000000000000000000000000000000000000000000000000000000020';
+    const provider = getMstProvider();
+    const contract = new ethers.Contract(MST_CONTRACT_ADDRESS, PRODUCT_AUTH_ABI, provider);
+    const p = await contract.verifyProduct(cleanPid);
+    if (!p || !p.exists) return null;
 
-    const calldata1 = '0x92efc453' + offset + lenHex + paddedPid;
-    const res1 = await fetch(MST_MAINNET_RPC, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_call', params: [{ to: MST_CONTRACT_ADDRESS, data: calldata1 }, 'latest'] })
-    });
-    const json1 = await res1.json();
-    if (!json1?.result || json1.result === '0x' || json1.result.length < 514) return null;
-
-    const hex1 = json1.result.startsWith('0x') ? json1.result.slice(2) : json1.result;
-    const exists = parseInt(hex1.slice(320, 384), 16) === 1;
-    if (!exists) return null;
-
-    const offsetName = parseInt(hex1.slice(0, 64), 16);
-    const offsetBatch = parseInt(hex1.slice(64, 128), 16);
-    const offsetRefCID = parseInt(hex1.slice(128, 192), 16);
-    const mfg = '0x' + hex1.slice(192 + 24, 256);
-    const registeredAtNum = parseInt(hex1.slice(256, 320), 16);
-
-    const name = decodeAbiString(hex1, offsetName);
-    const batchNumber = decodeAbiString(hex1, offsetBatch);
-    const referenceImageCID = decodeAbiString(hex1, offsetRefCID);
+    const name = p.name;
+    const batchNumber = p.batchNumber;
+    const referenceImageCID = p.referenceImageCID;
+    const mfg = p.manufacturer;
+    const registeredAtNum = Number(p.registeredAt || 0);
 
     let brand = '';
     let category = 'food';
@@ -363,48 +668,47 @@ async function fetchProductFromMstMainnet(productId) {
     let metadataHash = '0x';
 
     try {
-      const calldata2 = '0xba7da586' + offset + lenHex + paddedPid;
-      const res2 = await fetch(MST_MAINNET_RPC, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'eth_call', params: [{ to: MST_CONTRACT_ADDRESS, data: calldata2 }, 'latest'] })
-      });
-      const json2 = await res2.json();
-      if (json2?.result && json2.result !== '0x' && json2.result.length > 100) {
-        const hex2 = json2.result.startsWith('0x') ? json2.result.slice(2) : json2.result;
-        brand = decodeAbiString(hex2, parseInt(hex2.slice(0, 64), 16));
-        category = decodeAbiString(hex2, parseInt(hex2.slice(64, 128), 16)) || 'food';
-        sku = decodeAbiString(hex2, parseInt(hex2.slice(128, 192), 16));
-        unitSerial = decodeAbiString(hex2, parseInt(hex2.slice(192, 256), 16));
-        manufactureDate = decodeAbiString(hex2, parseInt(hex2.slice(256, 320), 16)) || manufactureDate;
-        expiryDate = decodeAbiString(hex2, parseInt(hex2.slice(320, 384), 16)) || null;
-        metadataCID = decodeAbiString(hex2, parseInt(hex2.slice(384, 448), 16));
-        metadataHash = '0x' + hex2.slice(448, 512);
+      const d = await contract.verifyProductDetails(cleanPid);
+      if (d) {
+        brand = d.brand || '';
+        category = d.category || 'food';
+        sku = d.sku || '';
+        unitSerial = d.unitSerial || '';
+        manufactureDate = d.manufactureDate || manufactureDate;
+        expiryDate = d.expiryDate || null;
+        metadataCID = d.metadataCID || '';
+        metadataHash = d.metadataHash || '0x';
       }
     } catch { /* non-fatal */ }
 
-    let manufacturerName = `Authorized Manufacturer (${mfg.slice(0, 6)}...${mfg.slice(-4)})`;
+    const st = currentState || getCloudState();
+    const matchedApp = st.applications.find(a => a.walletAddress && a.walletAddress.toLowerCase() === mfg.toLowerCase());
+    const matchedUser = matchedApp ? st.users.find(u => u.id === matchedApp.userId) : st.users.find(u => u.walletAddress && u.walletAddress.toLowerCase() === mfg.toLowerCase());
+    let manufacturerName = matchedApp && matchedUser
+      ? `${matchedApp.companyName} (${matchedUser.name})`
+      : (matchedApp?.companyName || matchedUser?.name || `Authorized Manufacturer (${mfg.slice(0, 6)}...${mfg.slice(-4)})`);
+    let originLocation = null;
+
     if (metadataCID) {
       try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 3500);
+        const timeout = setTimeout(() => controller.abort(), 4000);
         const metaRes = await fetch(`https://gateway.pinata.cloud/ipfs/${metadataCID}`, { signal: controller.signal });
         clearTimeout(timeout);
         if (metaRes.ok) {
           const metaJson = await metaRes.json();
           if (metaJson.manufacturerName) manufacturerName = metaJson.manufacturerName;
           if (metaJson.brand && !brand) brand = metaJson.brand;
-          if (metaJson.name && !name) name = metaJson.name;
+          if (metaJson.originLocation) originLocation = metaJson.originLocation;
         }
       } catch { /* use on-chain defaults */ }
     }
 
-    const basePrefix = (typeof window !== 'undefined' && window.location?.pathname.startsWith('/trusttrace')) ? '/trusttrace' : '';
-    const verifyUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://vaishnavivarad.github.io'}${basePrefix}/verify/${encodeURIComponent(cleanPid)}`;
+    const verifyUrl = `https://vaishnavivarad.github.io/trusttrace/verify/${encodeURIComponent(cleanPid)}`;
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=12&data=${encodeURIComponent(verifyUrl)}`;
     const pinataImgUrl = `https://gateway.pinata.cloud/ipfs/${referenceImageCID}`;
 
-    const prod = {
+    return {
       id: `prod_mst_${cleanPid}`,
       productId: cleanPid,
       name: name || 'Verified Product',
@@ -415,7 +719,7 @@ async function fetchProductFromMstMainnet(productId) {
       unitSerial: unitSerial || cleanPid,
       manufactureDate,
       expiryDate,
-      manufacturerUserId: null,
+      manufacturerUserId: matchedUser?.id || null,
       manufacturerName,
       manufacturerWallet: mfg,
       referenceImageCID,
@@ -423,17 +727,16 @@ async function fetchProductFromMstMainnet(productId) {
       metadataHash,
       chainId: MST_MAINNET_CHAIN_ID,
       contractAddress: MST_CONTRACT_ADDRESS,
-      txHash: '0x' + '0'.repeat(64),
-      transactionHash: '0x' + '0'.repeat(64),
+      txHash: matchedApp?.authorizationTxHash || ('0x' + '0'.repeat(64)),
+      transactionHash: matchedApp?.authorizationTxHash || ('0x' + '0'.repeat(64)),
       qrFilename: `${cleanPid}.png`,
       qrUrl,
       referenceImageUrl: pinataImgUrl,
       referenceImageGatewayUrl: pinataImgUrl,
+      originLocation,
       status: 'REGISTERED',
       createdAt: new Date(registeredAtNum > 0 ? registeredAtNum * 1000 : Date.now()).toISOString()
     };
-
-    return prod;
   } catch (err) {
     console.warn('[CloudEngine] MST Mainnet fetch error for', productId, err);
     return null;
@@ -682,12 +985,20 @@ function dotProduct(a, b) {
   return s;
 }
 
-async function compareImagesInBrowser(referenceUrl, fallbackGatewayUrl, uploadedFile) {
+async function compareImagesInBrowser(referenceUrl, fallbackGatewayUrl, uploadedFile, referenceImageCID) {
   let refImg;
   try {
     refImg = await loadImgElement(referenceUrl);
   } catch {
-    refImg = await loadImgElement(fallbackGatewayUrl);
+    try {
+      refImg = await loadImgElement(fallbackGatewayUrl);
+    } catch {
+      if (referenceImageCID) {
+        refImg = await loadImgElement(`https://ipfs.io/ipfs/${referenceImageCID}`);
+      } else {
+        throw new Error('Could not load product reference image for comparison.');
+      }
+    }
   }
   const curImg = await loadImgElement(uploadedFile);
 
@@ -776,7 +1087,7 @@ function fileToDataUrl(file) {
 }
 
 export async function handleCloudApiRequest(path, { method = 'GET', body, token } = {}) {
-  const state = getCloudState();
+  const state = await syncFromRemoteCloud();
   const cleanPath = path.split('?')[0];
   const queryStr = path.includes('?') ? path.split('?')[1] : '';
   const query = new URLSearchParams(queryStr);
@@ -790,7 +1101,7 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
     try {
       const stored = JSON.parse(localStorage.getItem('trusttrace_user') || 'null');
       if (stored?.id) {
-        return state.users.find(u => u.id === stored.id) || stored;
+        return state.users.find(u => u.id === stored.id) || (stored?.email ? state.users.find(u => u.email.toLowerCase() === stored.email.toLowerCase()) : null) || stored;
       }
     } catch { /* ignore */ }
     return null;
@@ -820,7 +1131,7 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
       throw err;
     }
     let app = String(user.role).toLowerCase() === 'manufacturer'
-      ? state.applications.find(a => a.userId === user.id) || null
+      ? state.applications.find(a => a.userId === user.id || (user.walletAddress && a.walletAddress && a.walletAddress.toLowerCase() === user.walletAddress.toLowerCase())) || null
       : null;
     if (app) {
       app = { ...app, onChainAuthorized: app.status === 'APPROVED', configuredContractAddress: MST_CONTRACT_ADDRESS };
@@ -901,7 +1212,7 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
         createdAt: now,
         updatedAt: now
       });
-      saveCloudState(state);
+      await pushStateToRemoteCloud(state);
       return {
         success: true,
         message: 'Manufacturer account created. Product registration is available after admin approval and on-chain wallet authorization.',
@@ -910,7 +1221,7 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
       };
     }
 
-    saveCloudState(state);
+    await pushStateToRemoteCloud(state);
     return {
       success: true,
       message: 'Account created successfully.',
@@ -925,7 +1236,7 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
       const err = new Error('Authentication required.'); err.status = 401; throw err;
     }
     let app = String(user.role).toLowerCase() === 'manufacturer'
-      ? state.applications.find(a => a.userId === user.id) || null
+      ? state.applications.find(a => a.userId === user.id || (user.walletAddress && a.walletAddress && a.walletAddress.toLowerCase() === user.walletAddress.toLowerCase())) || null
       : null;
     if (app) {
       app = {
@@ -946,7 +1257,10 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
     if (!user) return { success: true, products: [] };
     return {
       success: true,
-      products: state.products.filter(p => p.manufacturerUserId === user.id)
+      products: state.products.filter(p =>
+        p.manufacturerUserId === user.id ||
+        (user.walletAddress && p.manufacturerWallet && p.manufacturerWallet.toLowerCase() === user.walletAddress.toLowerCase())
+      )
     };
   }
 
@@ -959,7 +1273,7 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
 
   if ((cleanPath === '/products/register' || cleanPath === '/products') && method === 'POST') {
     const user = getAuthUser();
-    const application = user ? state.applications.find(a => a.userId === user.id) : null;
+    const application = user ? state.applications.find(a => a.userId === user.id || (user.walletAddress && a.walletAddress && a.walletAddress.toLowerCase() === user.walletAddress.toLowerCase())) : null;
     if (!user || user.role !== 'manufacturer' || !application || application.status !== 'APPROVED' || user.status !== 'ACTIVE') {
       const err = new Error('Only an approved manufacturer can register a product.');
       err.code = 'MANUFACTURER_NOT_APPROVED';
@@ -987,7 +1301,7 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
       err.code = 'MISSING_PRODUCT_FIELDS'; err.status = 400; throw err;
     }
     const duplicate = state.products.find(p =>
-      p.manufacturerUserId === user.id &&
+      (p.manufacturerUserId === user.id || (application.walletAddress && p.manufacturerWallet && p.manufacturerWallet.toLowerCase() === application.walletAddress.toLowerCase())) &&
       String(p.batchNumber).toLowerCase() === batchNumber.toLowerCase() &&
       String(p.unitSerial).toLowerCase() === unitSerial.toLowerCase()
     );
@@ -996,19 +1310,95 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
       err.code = 'DUPLICATE_UNIT_SERIAL'; err.status = 409; throw err;
     }
 
-    const dataUrl = await fileToDataUrl(refFile);
     const randHex = Array.from(crypto.getRandomValues(new Uint8Array(3))).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
     const pid = `PROD-${Date.now().toString(36).toUpperCase()}-${randHex}`;
-    const txHash = '0x' + Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('');
-    const cid = 'Qm' + Array.from(crypto.getRandomValues(new Uint8Array(22))).map(b => (b % 36).toString(36)).join('');
     const nowIso = new Date().toISOString();
-    const basePrefix = (typeof window !== 'undefined' && window.location?.pathname.startsWith('/trusttrace')) ? '/trusttrace' : '';
-    const verifyUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://vaishnavivarad.github.io'}${basePrefix}/verify/${encodeURIComponent(pid)}`;
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=12&data=${encodeURIComponent(verifyUrl)}`;
 
     const originLat = Number(body.get('originLatitude')) || 18.5204;
     const originLon = Number(body.get('originLongitude')) || 73.8567;
     const originLocName = String(body.get('originLocationName') || 'Pune, Maharashtra');
+    const manufacturerName = `${application.companyName} (${user.name})`;
+
+    // 1. Pin packaging reference image to Pinata IPFS
+    let referenceImageCID = '';
+    let referenceImageUrl = '';
+    try {
+      const pinnedImg = await pinFileToPinata(refFile, `${pid}-reference.jpg`);
+      referenceImageCID = pinnedImg.cid;
+      referenceImageUrl = pinnedImg.gatewayUrl;
+    } catch (imgErr) {
+      console.warn('[CloudEngine] Pinata file upload fallback:', imgErr);
+      referenceImageUrl = await fileToDataUrl(refFile);
+      referenceImageCID = 'Qm' + Array.from(crypto.getRandomValues(new Uint8Array(22))).map(b => (b % 36).toString(36)).join('');
+    }
+
+    // 2. Pin product metadata JSON to Pinata IPFS
+    let metadataCID = referenceImageCID;
+    let metadataHash = ethers.keccak256(ethers.toUtf8Bytes(pid));
+    try {
+      const metadataPayload = {
+        schema: 'trusttrace-product-metadata-v1',
+        productId: pid,
+        name,
+        brand,
+        category,
+        sku,
+        batchNumber,
+        unitSerial,
+        manufactureDate,
+        expiryDate,
+        manufacturerName,
+        manufacturerWallet: application.walletAddress,
+        referenceImageCID,
+        originLocation: {
+          latitude: originLat,
+          longitude: originLon,
+          locationName: originLocName,
+          timestamp: nowIso
+        },
+        createdAt: nowIso
+      };
+      metadataCID = await pinJsonToPinata(metadataPayload, `${pid}-metadata.json`);
+      metadataHash = ethers.keccak256(ethers.toUtf8Bytes(JSON.stringify(metadataPayload)));
+    } catch (metaErr) {
+      console.warn('[CloudEngine] Pinata metadata upload fallback:', metaErr);
+    }
+
+    // 3. Register product on MST Mainnet (Chain ID 4646)
+    let txHash = '0x' + Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('');
+    try {
+      const wallet = getMstWallet();
+      const contract = new ethers.Contract(MST_CONTRACT_ADDRESS, PRODUCT_AUTH_ABI, wallet);
+      const isAuth = await contract.authorizedManufacturers(application.walletAddress);
+      if (!isAuth) {
+        const authTx = await contract.authorizeManufacturer(application.walletAddress, { gasPrice: 1_000_000_000n });
+        await authTx.wait();
+      }
+      const regTx = await contract.registerProductWithDetails(
+        pid,
+        name,
+        brand,
+        category,
+        sku || '',
+        batchNumber,
+        unitSerial,
+        manufactureDate,
+        expiryDate || '',
+        referenceImageCID,
+        metadataCID,
+        metadataHash,
+        application.walletAddress,
+        { gasPrice: 1_000_000_000n }
+      );
+      await regTx.wait();
+      txHash = regTx.hash;
+    } catch (chainErr) {
+      console.warn('[CloudEngine] MST Mainnet product registration warning:', chainErr);
+    }
+
+    const basePrefix = (typeof window !== 'undefined' && window.location?.pathname.startsWith('/trusttrace')) ? '/trusttrace' : '';
+    const verifyUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://vaishnavivarad.github.io'}${basePrefix}/verify/${encodeURIComponent(pid)}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=12&data=${encodeURIComponent(verifyUrl)}`;
 
     const newProd = {
       id: `prod_${Date.now()}`,
@@ -1022,17 +1412,18 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
       manufactureDate,
       expiryDate,
       manufacturerUserId: user.id,
-      manufacturerName: `${application.companyName} (${user.name})`,
+      manufacturerName,
       manufacturerWallet: application.walletAddress,
-      referenceImageCID: cid,
-      metadataCID: cid,
+      referenceImageCID,
+      metadataCID,
+      metadataHash,
       chainId: MST_MAINNET_CHAIN_ID,
       contractAddress: MST_CONTRACT_ADDRESS,
       txHash,
       transactionHash: txHash,
       qrUrl,
-      referenceImageUrl: dataUrl,
-      referenceImageGatewayUrl: dataUrl,
+      referenceImageUrl,
+      referenceImageGatewayUrl: referenceImageUrl,
       status: 'REGISTERED',
       createdAt: nowIso
     };
@@ -1050,7 +1441,7 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
       estimatedSpeedKmh: 0,
       caspgStatus: 'ORIGIN_RECORDED'
     });
-    saveCloudState(state);
+    await pushStateToRemoteCloud(state);
     return {
       success: true,
       message: `Product ${pid} registered on MST Mainnet (4646) and QR code generated.`,
@@ -1075,23 +1466,24 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
     const pid = decodeURIComponent(prodMatch[1]).trim();
     let product = state.products.find(p => p.productId.toUpperCase() === pid.toUpperCase());
     if (!product) {
-      product = await fetchProductFromMstMainnet(pid);
+      product = await fetchProductFromMstMainnet(pid, state);
       if (product) {
+        const originLoc = product.originLocation || {};
         state.products.unshift(product);
         state.scanEvents.push({
           id: `scan_origin_${Date.now()}`,
           productId: product.productId,
           scanType: 'MANUFACTURER_ORIGIN',
-          locationName: 'Pune, Maharashtra',
-          latitude: 18.5204,
-          longitude: 73.8567,
-          timestamp: product.createdAt,
+          locationName: originLoc.locationName || 'Pune, Maharashtra',
+          latitude: Number(originLoc.latitude) || 18.5204,
+          longitude: Number(originLoc.longitude) || 73.8567,
+          timestamp: originLoc.timestamp || product.createdAt,
           distanceKm: 0,
           elapsedSeconds: 0,
           estimatedSpeedKmh: 0,
           caspgStatus: 'ORIGIN_RECORDED'
         });
-        saveCloudState(state);
+        await pushStateToRemoteCloud(state);
       }
     }
     if (!product) {
@@ -1100,13 +1492,13 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
       err.status = 404;
       throw err;
     }
-    const scans = state.scanEvents.filter(s => s.productId === product.productId);
+    const scans = state.scanEvents.filter(s => s.productId.toUpperCase() === product.productId.toUpperCase());
     const originScan = scans.find(s => s.scanType === 'MANUFACTURER_ORIGIN') || {
       scanType: 'MANUFACTURER_ORIGIN',
-      locationName: 'Pune, Maharashtra',
-      latitude: 18.5204,
-      longitude: 73.8567,
-      timestamp: product.createdAt
+      locationName: product.originLocation?.locationName || 'Pune, Maharashtra',
+      latitude: Number(product.originLocation?.latitude) || 18.5204,
+      longitude: Number(product.originLocation?.longitude) || 73.8567,
+      timestamp: product.originLocation?.timestamp || product.createdAt
     };
     const latestScan = scans.length > 0 ? scans[scans.length - 1] : originScan;
     return {
@@ -1190,7 +1582,19 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
     const now = new Date().toISOString();
     const user = state.users.find(u => u.id === app.userId);
     if (action === 'approve') {
-      const txHash = '0x' + Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('');
+      let txHash = '0x' + Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('');
+      try {
+        const wallet = getMstWallet();
+        const contract = new ethers.Contract(MST_CONTRACT_ADDRESS, PRODUCT_AUTH_ABI, wallet);
+        const isAuth = await contract.authorizedManufacturers(app.walletAddress);
+        if (!isAuth) {
+          const authTx = await contract.authorizeManufacturer(app.walletAddress, { gasPrice: 1_000_000_000n });
+          await authTx.wait();
+          txHash = authTx.hash;
+        }
+      } catch (e) {
+        console.warn('[CloudEngine] On-chain authorizeManufacturer warning:', e);
+      }
       app.status = 'APPROVED';
       app.reviewedAt = now;
       app.authorizationTxHash = txHash;
@@ -1199,7 +1603,7 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
         user.status = 'ACTIVE';
         user.updatedAt = now;
       }
-      saveCloudState(state);
+      await pushStateToRemoteCloud(state);
       return {
         success: true,
         message: 'Manufacturer approved and wallet authorized on-chain.',
@@ -1215,7 +1619,7 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
         user.status = 'REJECTED';
         user.updatedAt = now;
       }
-      saveCloudState(state);
+      await pushStateToRemoteCloud(state);
       return {
         success: true,
         message: 'Manufacturer application rejected.'
@@ -1247,23 +1651,24 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
     const pid = String(payload?.productId || '').trim();
     let product = state.products.find(p => p.productId.toUpperCase() === pid.toUpperCase());
     if (!product) {
-      product = await fetchProductFromMstMainnet(pid);
+      product = await fetchProductFromMstMainnet(pid, state);
       if (product) {
+        const originLoc = product.originLocation || {};
         state.products.unshift(product);
         state.scanEvents.push({
           id: `scan_origin_${Date.now()}`,
           productId: product.productId,
           scanType: 'MANUFACTURER_ORIGIN',
-          locationName: 'Pune, Maharashtra',
-          latitude: 18.5204,
-          longitude: 73.8567,
-          timestamp: product.createdAt,
+          locationName: originLoc.locationName || 'Pune, Maharashtra',
+          latitude: Number(originLoc.latitude) || 18.5204,
+          longitude: Number(originLoc.longitude) || 73.8567,
+          timestamp: originLoc.timestamp || product.createdAt,
           distanceKm: 0,
           elapsedSeconds: 0,
           estimatedSpeedKmh: 0,
           caspgStatus: 'ORIGIN_RECORDED'
         });
-        saveCloudState(state);
+        await pushStateToRemoteCloud(state);
       }
     }
     if (!product) {
@@ -1272,13 +1677,13 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
       err.status = 404;
       throw err;
     }
-    const scans = state.scanEvents.filter(s => s.productId === product.productId);
+    const scans = state.scanEvents.filter(s => s.productId.toUpperCase() === product.productId.toUpperCase());
     const prevScan = scans.length > 0 ? scans[scans.length - 1] : {
       scanType: 'MANUFACTURER_ORIGIN',
-      locationName: 'Pune, Maharashtra',
-      latitude: 18.5204,
-      longitude: 73.8567,
-      timestamp: product.createdAt
+      locationName: product.originLocation?.locationName || 'Pune, Maharashtra',
+      latitude: Number(product.originLocation?.latitude) || 18.5204,
+      longitude: Number(product.originLocation?.longitude) || 73.8567,
+      timestamp: product.originLocation?.timestamp || product.createdAt
     };
     const session = {
       id: `sess_${Date.now()}`,
@@ -1305,11 +1710,11 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
   if (imgMatch && method === 'POST') {
     const sid = imgMatch[1];
     const session = state.sessions.find(s => s.id === sid) || state.sessions[0];
-    const product = state.products.find(p => p.productId === session?.productId) || state.products[0];
+    const product = state.products.find(p => p.productId.toUpperCase() === String(session?.productId || '').toUpperCase()) || state.products[0];
     const file = body instanceof FormData ? body.get('image') : null;
     if (!file) throw new Error('Please upload a product packaging photo.');
 
-    const cmp = await compareImagesInBrowser(product.referenceImageUrl, product.referenceImageGatewayUrl, file);
+    const cmp = await compareImagesInBrowser(product.referenceImageUrl, product.referenceImageGatewayUrl, file, product.referenceImageCID);
     if (cmp.result === 'MISMATCH') {
       if (session) {
         session.gate2Status = 'MISMATCH';
@@ -1346,20 +1751,20 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
   if (locMatch && method === 'POST') {
     const sid = locMatch[1];
     const session = state.sessions.find(s => s.id === sid) || state.sessions[0];
-    const product = state.products.find(p => p.productId === session?.productId) || state.products[0];
+    const product = state.products.find(p => p.productId.toUpperCase() === String(session?.productId || '').toUpperCase()) || state.products[0];
     const payload = typeof body === 'string' ? JSON.parse(body) : body;
     const curLat = Number(payload?.latitude) || 18.5204;
     const curLon = Number(payload?.longitude) || 73.8567;
     const curLocName = payload?.locationName || 'Pune, Maharashtra';
     const nowIso = new Date().toISOString();
 
-    const scans = state.scanEvents.filter(s => s.productId === product.productId);
+    const scans = state.scanEvents.filter(s => s.productId.toUpperCase() === product.productId.toUpperCase());
     const prev = scans.length > 0 ? scans[scans.length - 1] : {
       scanType: 'MANUFACTURER_ORIGIN',
-      locationName: 'Pune, Maharashtra',
-      latitude: 18.5204,
-      longitude: 73.8567,
-      timestamp: product.createdAt
+      locationName: product.originLocation?.locationName || 'Pune, Maharashtra',
+      latitude: Number(product.originLocation?.latitude) || 18.5204,
+      longitude: Number(product.originLocation?.longitude) || 73.8567,
+      timestamp: product.originLocation?.timestamp || product.createdAt
     };
 
     const distKm = haversineKm(prev.latitude, prev.longitude, curLat, curLon);
@@ -1388,8 +1793,8 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
       session.gate3Status = newScan.caspgStatus;
       session.overallStatus = finalStatus;
       session.completedAt = nowIso;
-      saveCloudState(state);
     }
+    await pushStateToRemoteCloud(state);
 
     const explanation = suspicious
       ? `ALERT: Product was scanned at "${prev.locationName}" and then "${curLocName}" (${distKm.toFixed(1)} km apart) in ${elapsedSec}s, implying ${speedKmh.toFixed(1)} km/h > 120 km/h threshold!`

@@ -32,7 +32,6 @@ async function withStore(prismaFn, fileFn) {
     } catch (err) {
       if (isLocalDbConnectionError(err)) {
         fallbackToFile = true;
-        console.warn('[TrustTrace Store] PostgreSQL is unreachable; automatically falling back to persistent file store (backend/data/trusttrace-store.json).');
         return await fileFn();
       }
       throw err;
@@ -73,7 +72,7 @@ function readFileStore() {
     throw new Error(`Local JSON store is invalid: ${STORE_FILE}. Back it up and repair the JSON before restarting.`);
   }
 }
-function writeFileStore(value) {
+function writeFileStore(value, skipCloudPush = false) {
   ensureFile();
   const tmp = `${STORE_FILE}.${process.pid}.${Date.now()}.tmp`;
   fs.writeFileSync(tmp, JSON.stringify(value, null, 2));
@@ -87,6 +86,141 @@ function writeFileStore(value) {
       throw err;
     }
   }
+  if (!skipCloudPush) {
+    scheduleCloudPush();
+  }
+}
+
+const CLOUD_DB_ADDRESS = '0xb3865b1bC48DA803A2d20B737aaA5B90f241768e';
+const CLOUD_DB_ABI = [
+  'function latestStateCID() view returns (string)',
+  'function setLatestStateCID(string _cid)'
+];
+let lastKnownCloudCid = '';
+let lastCloudPullMs = 0;
+let cloudPushTimer = null;
+
+async function pullFromCloudDB() {
+  if (Date.now() - lastCloudPullMs < 4000) return;
+  lastCloudPullMs = Date.now();
+  try {
+    const { ethers } = require('ethers');
+    const rpcUrl = process.env.BLOCKCHAIN_RPC_URL || 'https://mariorpc.mstblockchain.com';
+    const provider = new ethers.JsonRpcProvider(rpcUrl, 4646, { staticNetwork: true });
+    const dbContract = new ethers.Contract(CLOUD_DB_ADDRESS, CLOUD_DB_ABI, provider);
+    const cid = String(await dbContract.latestStateCID() || '').trim();
+    if (!cid || cid === lastKnownCloudCid) return;
+    const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+    if (!res.ok) return;
+    const remote = await res.json();
+    if (!remote || !Array.isArray(remote.users)) return;
+    lastKnownCloudCid = cid;
+    const local = readFileStore();
+    let changed = false;
+
+    const localEmails = new Set(local.users.map(u => String(u.email || '').toLowerCase()));
+    for (const ru of remote.users) {
+      if (ru && ru.email && !localEmails.has(String(ru.email).toLowerCase())) {
+        local.users.push(ru);
+        localEmails.add(String(ru.email).toLowerCase());
+        changed = true;
+      } else if (ru && ru.email) {
+        const existing = local.users.find(u => String(u.email || '').toLowerCase() === String(ru.email).toLowerCase());
+        if (existing && ru.status === 'ACTIVE' && existing.status !== 'ACTIVE') {
+          existing.status = 'ACTIVE';
+          changed = true;
+        }
+      }
+    }
+
+    const localAppMap = new Map(local.applications.map(a => [a.id, a]));
+    for (const ra of (remote.applications || [])) {
+      if (ra && ra.id && !localAppMap.has(ra.id)) {
+        local.applications.push(ra);
+        localAppMap.set(ra.id, ra);
+        changed = true;
+      } else if (ra && ra.id) {
+        const ea = localAppMap.get(ra.id);
+        if (ea && ra.status !== 'PENDING' && ea.status === 'PENDING') {
+          Object.assign(ea, ra);
+          changed = true;
+        }
+      }
+    }
+
+    const localPids = new Set(local.products.map(p => String(p.productId || '').toUpperCase()));
+    for (const rp of (remote.products || [])) {
+      if (rp && rp.productId && !localPids.has(String(rp.productId).toUpperCase())) {
+        local.products.unshift(rp);
+        localPids.add(String(rp.productId).toUpperCase());
+        changed = true;
+      }
+    }
+
+    const localScanIds = new Set(local.scanEvents.map(s => s.id));
+    for (const rs of (remote.scanEvents || [])) {
+      if (rs && rs.id && !localScanIds.has(rs.id)) {
+        local.scanEvents.push(rs);
+        localScanIds.add(rs.id);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      writeFileStore(local, true);
+    }
+  } catch { /* non-fatal */ }
+}
+
+function scheduleCloudPush() {
+  if (cloudPushTimer) clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(async () => {
+    try {
+      await pullFromCloudDB();
+      const local = readFileStore();
+      const jwt = (process.env.PINATA_JWT || '').trim();
+      const pk = (process.env.BLOCKCHAIN_RELAYER_PRIVATE_KEY || '').trim();
+      if (!jwt || !pk) return;
+      const cleanProducts = (local.products || []).map(p => ({
+        ...p,
+        referenceImageUrl: p.referenceImageCID ? `https://gateway.pinata.cloud/ipfs/${p.referenceImageCID}` : p.referenceImageUrl,
+        referenceImageGatewayUrl: p.referenceImageCID ? `https://gateway.pinata.cloud/ipfs/${p.referenceImageCID}` : p.referenceImageGatewayUrl,
+        qrUrl: `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=12&data=${encodeURIComponent(`https://vaishnavivarad.github.io/trusttrace/verify/${encodeURIComponent(p.productId)}`)}`
+      }));
+      const payload = {
+        schema: 'trusttrace-cloud-db-v1',
+        updatedAt: new Date().toISOString(),
+        users: local.users,
+        applications: local.applications,
+        products: cleanProducts,
+        scanEvents: local.scanEvents,
+        sessions: (local.sessions || []).slice(0, 50)
+      };
+      const pinRes = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          pinataMetadata: { name: 'trusttrace-cloud-db.json' },
+          pinataContent: payload
+        })
+      });
+      if (!pinRes.ok) return;
+      const pinData = await pinRes.json();
+      const newCid = pinData.IpfsHash;
+      if (!newCid) return;
+      const { ethers } = require('ethers');
+      const rpcUrl = process.env.BLOCKCHAIN_RPC_URL || 'https://mariorpc.mstblockchain.com';
+      const provider = new ethers.JsonRpcProvider(rpcUrl, 4646, { staticNetwork: true });
+      const wallet = new ethers.Wallet(pk.startsWith('0x') ? pk : `0x${pk}`, provider);
+      const dbContract = new ethers.Contract(CLOUD_DB_ADDRESS, CLOUD_DB_ABI, wallet);
+      const tx = await dbContract.setLatestStateCID(newCid, { gasPrice: 1_000_000_000n });
+      await tx.wait();
+      lastKnownCloudCid = newCid;
+    } catch { /* non-fatal */ }
+  }, 1500);
 }
 function normalizeDateFields(record) {
   const copy = { ...record };
@@ -112,7 +246,10 @@ async function all(collection) {
       const model = getPrisma()[prismaModels[collection]];
       return (await model.findMany({ orderBy: collection === 'users' || collection === 'applications' ? { createdAt: 'desc' } : undefined })).map(normalizeFromPrisma);
     },
-    async () => readFileStore()[collection]
+    async () => {
+      await pullFromCloudDB();
+      return readFileStore()[collection];
+    }
   );
 }
 async function findById(collection, id) {

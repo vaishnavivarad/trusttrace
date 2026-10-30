@@ -558,10 +558,15 @@ function CustomerPage({ user, navigate, notify }) {
   </DashboardLayout>;
 }
 
-function ReferenceImage({ src, fallbackSrc, alt }) {
+function ReferenceImage({ src, fallbackSrc, cid, alt }) {
   const [current, setCurrent] = useState(src); const [failed, setFailed] = useState(false);
+  const ipfsFallback = cid ? `https://ipfs.io/ipfs/${cid}` : '';
   if (failed) return <div className="inline-error" style={{ minHeight: '120px', justifyContent: 'center' }}><AlertCircle size={17} />Reference image unavailable right now (IPFS retrieval failed). Retry later; no substitute image is shown.</div>;
-  return <img src={current} alt={alt} onError={() => { if (fallbackSrc && current !== fallbackSrc) setCurrent(fallbackSrc); else setFailed(true); }} style={{ width: '100%', maxHeight: '240px', objectFit: 'contain', borderRadius: '10px', background: '#fff' }} />;
+  return <img src={current} alt={alt} onError={() => {
+    if (fallbackSrc && current !== fallbackSrc) setCurrent(fallbackSrc);
+    else if (ipfsFallback && current !== ipfsFallback) setCurrent(ipfsFallback);
+    else setFailed(true);
+  }} style={{ width: '100%', maxHeight: '240px', objectFit: 'contain', borderRadius: '10px', background: '#fff' }} />;
 }
 
 function VerifyPage({ user, token, productId: initialId, navigate, notify }) {
@@ -587,7 +592,7 @@ function VerifyPage({ user, token, productId: initialId, navigate, notify }) {
     const requestSeq = ++productRequestSeq.current;
     try {
       const data = await apiRequest(`/products/${encodeURIComponent(id)}`);
-      if (requestSeq !== productRequestSeq.current || data?.product?.productId !== id) return;
+      if (requestSeq !== productRequestSeq.current || String(data?.product?.productId || '').toUpperCase() !== id.toUpperCase()) return;
       setProduct(data.product);
       setStep('details');
     } catch (e) {
@@ -631,7 +636,7 @@ function VerifyPage({ user, token, productId: initialId, navigate, notify }) {
   useEffect(() => {
     if (!initialId) return;
     setProductId(initialId);
-    if (loadedInitialId.current === initialId) return;
+    if (String(loadedInitialId.current).toUpperCase() === String(initialId).toUpperCase()) return;
     loadedInitialId.current = initialId;
     loadProductDetails(initialId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -666,7 +671,7 @@ function VerifyPage({ user, token, productId: initialId, navigate, notify }) {
                 if (code?.data) {
                   const id = extractProductIdFromRawQr(code.data);
                   if (id) {
-                    stopCamera(); setProductId(id); navigate('verify', id); loadProductDetails(id); return;
+                    stopCamera(); loadedInitialId.current = id; setProductId(id); navigate('verify', id); loadProductDetails(id); return;
                   }
                 }
               }
@@ -675,7 +680,7 @@ function VerifyPage({ user, token, productId: initialId, navigate, notify }) {
                 if (codes?.[0]?.rawValue) {
                   const id = extractProductIdFromRawQr(codes[0].rawValue);
                   if (id) {
-                    stopCamera(); setProductId(id); navigate('verify', id); loadProductDetails(id); return;
+                    stopCamera(); loadedInitialId.current = id; setProductId(id); navigate('verify', id); loadProductDetails(id); return;
                   }
                 }
               }
@@ -697,6 +702,7 @@ function VerifyPage({ user, token, productId: initialId, navigate, notify }) {
     try {
       const pid = await decodeQrFromImageFile(file);
       notify('success', `QR Code decoded: ${pid}`);
+      loadedInitialId.current = pid;
       setProductId(pid);
       navigate('verify', pid);
       loadProductDetails(pid);
@@ -785,7 +791,7 @@ function VerifyPage({ user, token, productId: initialId, navigate, notify }) {
               <button
                 key={cp.productId}
                 type="button"
-                onClick={() => { setProductId(cp.productId); navigate('verify', cp.productId); loadProductDetails(cp.productId); }}
+                onClick={() => { loadedInitialId.current = cp.productId; setProductId(cp.productId); navigate('verify', cp.productId); loadProductDetails(cp.productId); }}
                 style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '10px', cursor: 'pointer', textAlign: 'left' }}
               >
                 <img src={resolveAssetUrl(cp.qrUrl)} alt={cp.productId} style={{ width: '44px', height: '44px', objectFit: 'contain', flexShrink: 0 }} />
@@ -800,7 +806,7 @@ function VerifyPage({ user, token, productId: initialId, navigate, notify }) {
       )}
 
       <div className="form-divider"><span>OR ENTER PRODUCT ID</span></div>
-      <form className="product-id-form" onSubmit={e => { e.preventDefault(); if (productId.trim()) { navigate('verify', productId.trim()); loadProductDetails(productId.trim()); } else { loadProductDetails(); } }}><div className="input-with-icon"><QrCode size={18} /><input value={productId} onChange={e => setProductId(e.target.value)} placeholder="e.g. PROD-MVT7IUI6-77E006" /></div><button className="btn btn-primary" disabled={loading}>{loading ? <LoaderCircle size={16} className="spin" /> : 'View product'}</button></form>
+      <form className="product-id-form" onSubmit={e => { e.preventDefault(); if (productId.trim()) { const clean = productId.trim(); loadedInitialId.current = clean; navigate('verify', clean); loadProductDetails(clean); } else { loadProductDetails(); } }}><div className="input-with-icon"><QrCode size={18} /><input value={productId} onChange={e => setProductId(e.target.value)} placeholder="e.g. PROD-MVT7IUI6-77E006" /></div><button className="btn btn-primary" disabled={loading}>{loading ? <LoaderCircle size={16} className="spin" /> : 'View product'}</button></form>
       {error && <div className="inline-error"><AlertCircle size={17}/>{error}</div>}
       <p className="fine-print">Product details are publicly accessible without signing in. Sign-in is only required if you start a Layer 2 & 3 verification session.</p>
     </div>}
@@ -837,7 +843,7 @@ function VerifyPage({ user, token, productId: initialId, navigate, notify }) {
           {refImgSrc && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '12px', textAlign: 'center' }}>
-                <ReferenceImage key={product.productId} src={refImgSrc} fallbackSrc={product.referenceImageGatewayUrl} alt={`${product.name} reference packaging`} />
+                <ReferenceImage key={product.productId} src={refImgSrc} fallbackSrc={product.referenceImageGatewayUrl} cid={product.referenceImageCID} alt={`${product.name} reference packaging`} />
                 <small style={{ display: 'block', marginTop: '8px', color: '#64748b', fontSize: '12px' }}>IPFS Reference Packaging Image</small>
               </div>
               {isManufacturerView && qrImgSrc && (
