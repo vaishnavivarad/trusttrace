@@ -1,10 +1,4 @@
-# TrustTrace — Blockchain-Based Product Provenance & AI-Powered Counterfeit Detection
 
-> **Official Submission for MST Blockchain BUILDATHON 2026**  
-> **Live Deployed Web Application:** [https://vaishnavivarad.github.io/trusttrace/](https://vaishnavivarad.github.io/trusttrace/)  
-> **GitHub Source Repository:** [https://github.com/vaishnavivarad/trusttrace](https://github.com/vaishnavivarad/trusttrace)
-
----
 
 ## Table of Contents
 1. [Project Overview](#1-project-overview)
@@ -93,33 +87,6 @@ TrustTrace is deployed and verified on the **MST Mainnet** and configured for **
 
 ---
 
-## 6. System Architecture & Workflow
-
-```mermaid
-flowchart LR
-    subgraph Step1["1. Manufacturer Onboarding"]
-        M["Manufacturer Signup\n+ EVM Wallet"] --> A["Admin Review\n& Approval"]
-        A -->|"authorizeManufacturer()"| MST["MST Mainnet (4646)\nProductAuth Contract"]
-    end
-
-    subgraph Step2["2. Product Registration"]
-        P["Approved Manufacturer\nUploads Packaging Photo"] --> IPFS["Pinata IPFS Cloud\n(Image CID + Metadata JSON)"]
-        P --> GPS["Auto-Captured Factory\nGPS Origin & Timestamp"]
-        IPFS -->|"registerProductWithDetails()"| MST
-        MST --> QR["Generate Unit QR Code"]
-    end
-
-    subgraph Step3["3. Customer 3-Layer Verification"]
-        QR --> L1["Layer 1: MST Mainnet\nRecord Check"]
-        L1 --> L2["Layer 2: Siamese CNN\nPackaging Image Match"]
-        L2 --> L3["Layer 3: CASPG GPS\nDistance & Speed Check"]
-        L3 --> RES["Explainable Result"]
-    end
-```
-
----
-
-## 7. Key Features Implemented
 
 1. **Controlled Manufacturer Onboarding & Admin Approval Gate:** Manufacturers cannot register products immediately after signup; Admin approval and on-chain wallet authorization are strictly enforced.
 2. **Wallet Selection Helper & Binding:** Manufacturers can select or enter their EVM wallet address during registration, which is bound to their profile and verified on-chain.
@@ -143,44 +110,7 @@ flowchart LR
 
 ---
 
-## 9. Repository Structure
-
-```text
-TrustTrace/
-├── frontend/                       # React + Vite web app & cross-device cloud engine
-│   ├── src/
-│   │   ├── App.jsx                 # Role-based dashboards (Admin, Manufacturer, Customer, VerifyPage)
-│   │   ├── cloudEngine.js          # MST Mainnet + Pinata IPFS + Browser CNN & CASPG sync engine
-│   │   └── App.css                 # Application styling
-│   └── package.json
-├── backend/                        # Node.js + Express REST API
-│   ├── prisma/
-│   │   └── schema.prisma           # PostgreSQL Prisma database schema
-│   ├── src/
-│   │   ├── controllers/            # Auth, Admin, Product, and Verification controllers
-│   │   ├── services/               # Blockchain, Pinata IPFS, CASPG, QR, ML, and Store services
-│   │   └── routes/                 # API routes
-│   ├── server.js                   # Express server entry point
-│   └── package.json
-├── trusttrace-blockchain/          # Hardhat 3 & Solidity smart contracts
-│   ├── contracts/
-│   │   ├── ProductAuth.sol         # Core manufacturer authorization & product registry contract
-│   │   └── TrustTraceCloudDB.sol   # Cross-device cloud state CID contract
-│   ├── test/                       # Smart contract unit tests
-│   └── hardhat.config.ts           # Hardhat network config (MST Mainnet 4646 & MST Testnet)
-└── ml-service/                     # Python FastAPI Siamese CNN microservice
-    ├── app.py                      # FastAPI inference API (/compare, /health)
-    ├── models/                     # Trained Siamese MobileNetV2 weights & threshold metadata
-    ├── scripts/                    # Dataset splitting, pair generation, and training scripts
-    └── requirements.txt
-```
-
----
-
-## 10. Step-by-Step Local Setup & Execution Guide
-
-### Prerequisites
-- **Node.js** (v20 or newer) and **npm**
+###**npm**
 - **Python** (v3.10 or v3.11 recommended for TensorFlow)
 - **PostgreSQL** (optional for local development; `STORAGE_MODE=file` is supported out-of-the-box and syncs with `TrustTraceCloudDB`)
 
@@ -246,31 +176,7 @@ Open `http://localhost:5173` in your browser.
 
 ---
 
-## 11. Step-by-Step Demo & Evaluation Walkthrough
 
-Judges and evaluators can test the complete workflow directly on our **Live Cloud Web App** ([https://vaishnavivarad.github.io/trusttrace/](https://vaishnavivarad.github.io/trusttrace/)) or locally:
-
-1. **Step 1 — Manufacturer Signup:**
-   - Go to **Create account** → Choose **Manufacturer**.
-   - Fill in your Name, Email, Password, Company Name, Business Email, Contact Name, Product Category, and select/enter an EVM Wallet Address.
-   - Notice that after signing up, your status is **`PENDING`** and product registration is locked until Admin approval.
-2. **Step 2 — Admin Approval & On-Chain Wallet Authorization:**
-   - Sign in as **Admin** (`admin@trusttrace.local`).
-   - Open the **Admin Dashboard** → Review the pending manufacturer application and click **Approve**.
-   - The system authorizes the manufacturer's wallet on the MST Mainnet `ProductAuth` smart contract (`authorizeManufacturer`).
-3. **Step 3 — Product Registration (Pinata IPFS + MST Mainnet + QR Generation):**
-   - Sign back in as the approved **Manufacturer** → Go to **Register product**.
-   - Enter Product Name, Brand, Category, SKU, Batch Number, Unique Unit Serial, Manufacturing/Expiry Dates, and upload a clear reference packaging photo.
-   - Your GPS Origin Location is detected automatically. Click **Register product & generate QR**.
-   - The reference photo and metadata are pinned to Pinata IPFS, the record is stored on MST Mainnet (`4646`), and a downloadable QR code is generated under **My products**.
-4. **Step 4 — Customer Cross-Device QR Scan & 3-Layer Verification:**
-   - Open the app on any **smartphone or computer** and sign in as a **Customer** (or click **Scan QR**).
-   - Scan the generated QR code using the **Live Camera QR Scanner** or **Upload / Scan QR Image**.
-   - **Layer 1 Result:** Displays the official MST Mainnet registration details and Pinata IPFS reference packaging photo.
-   - **Layer 2 Result:** Upload/capture the product packaging photo to run the **Siamese CNN visual comparison** (passes if packaging matches; fails immediately if a different package photo is uploaded).
-   - **Layer 3 Result:** Automatically checks the customer's GPS coordinates and elapsed time against the manufacturer's origin / previous scan using the **CASPG velocity check (`<= 120 km/h`)** and displays the final verification verdict.
-
----
 
 ## 12. Third-Party Libraries, Credits & Licenses
 
@@ -296,7 +202,7 @@ All third-party open-source frameworks, libraries, and public APIs used in this 
 ## 13. Originality Declaration & Team Details
 
 ### Declaration of Originality
-We hereby confirm that **TrustTrace** submitted for the **MST Blockchain BUILDATHON 2026** is an original project designed and developed by our team. The complete source code is publicly accessible in this GitHub repository for review and evaluation by the organizers. All third-party libraries, tools, and APIs used have been appropriately credited above in compliance with their respective licenses.
+We hereby confirm that **TrustTrace** submitted for the **MST Blockchain BUILDATHON 2026** is an original project designed and developed by our team. The complete source code is publicly accessible in this GitHub repository for review. All third-party libraries, tools, and APIs used have been appropriately credited above in compliance with their respective licenses.
 
 ### Team Members — Department of CSE (Data Science)
 - Vaishnavi Patil
