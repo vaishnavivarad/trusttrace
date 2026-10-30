@@ -9,8 +9,10 @@ const { hashPassword } = require('../src/services/passwordService');
     if (!email || !password || password.length < 12) {
       throw new Error('Set SEED_ADMIN_EMAIL and a SEED_ADMIN_PASSWORD of at least 12 characters in backend/.env before running this script.');
     }
-    if (await store.findUserByEmail(email)) {
-      console.log(`Admin account already exists for ${email}; no changes made.`);
+    const existing = await store.findUserByEmail(email);
+    if (existing) {
+      await store.update('users', existing.id, { passwordHash: await hashPassword(password), role: 'admin', status: 'ACTIVE' });
+      console.log(`Admin account password/status synced for ${email}.`);
       process.exitCode = 0;
       return;
     }

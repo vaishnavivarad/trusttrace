@@ -4,9 +4,12 @@ const controller = require('../controllers/verificationController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 8 * 1024 * 1024, files: 1 } });
+
+router.get('/detect-location', controller.detectDeviceLocation);
 router.use(requireAuth);
 router.post('/start', controller.startVerification);
 router.post('/:sessionId/image', upload.single('image'), controller.compareImage);
 router.post('/:sessionId/location', controller.recordLocationAndComplete);
 router.get('/:sessionId', controller.getSession);
+
 module.exports = router;

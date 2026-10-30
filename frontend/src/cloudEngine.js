@@ -16,7 +16,8 @@ const SEED_USERS = [
   { id: '01a61869-fe69-4651-903e-26f9c94522bd', name: 'Rani', email: 'rani@gmail.com', passwordHash: 'scrypt$3de36b184157176b396aadcc2e07a87d$8a7f5e6ef52119466b92122b27c558135ae9baaebc971013273b1f3bcf5e44981ad75791a73943aaee4fdaa42f0851d62af9b47ed1d5657025664202369b61e9', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x90F79bf6EB2c4f870365E785982E1f101E93b906' },
   { id: '2f335ff1-8f77-44ac-a364-d1e99ee7d64d', name: 'Ganesh', email: 'ganesh@gmail.com', passwordHash: 'scrypt$becaed3c014a73eb7ec6f27082ac8d51$89d86506e86ebee1c45f206104815915d16ea403162191d10aa63fbdaeac3d04e3e73b87daee9528a05a8a76a4de35f02e62e1c4f35ac54c483f2dd2c6e7bbbc', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc' },
   { id: '40dd6294-2bc5-4052-b9fa-adcf4ac5a550', name: 'tukaram Patil', email: 'tukaram.patil24@gmail.com', passwordHash: 'scrypt$0dea6168d3f893d4fc062f35b6d7f2c2$ea7ab8e2a22f40f25779cf2d3c142b7cf67891cb2bb49fb9f60674ca96153ae4e064b6755b614690652e92f87be331eb2287b84f76b0d5857bd830e6810b658c', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' },
-  { id: 'af0857db-b9d2-4297-ae0f-3bb9851c362c', name: 'E2E Pharma Labs', email: 'e2e-mfg-1793042327059@trusttrace.local', passwordHash: 'scrypt$c8bd25d6aaa7d8044649981d8bd200cd$f84bd2f64631f301b20dbb1a1de930727544107f16311f57f91f8a7d3f21b49109ddfc46a356fb05fec57ab2480e71bf86bb0d98265c319e7b14fae6c79a8b7a', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC' }
+  { id: 'af0857db-b9d2-4297-ae0f-3bb9851c362c', name: 'E2E Pharma Labs', email: 'e2e-mfg-1793042327059@trusttrace.local', passwordHash: 'scrypt$c8bd25d6aaa7d8044649981d8bd200cd$f84bd2f64631f301b20dbb1a1de930727544107f16311f57f91f8a7d3f21b49109ddfc46a356fb05fec57ab2480e71bf86bb0d98265c319e7b14fae6c79a8b7a', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC' },
+  { id: '6499d7e4-799e-4fa3-b52b-c3b39624f0ed', name: 'Maruti Patil', email: 'marutipatil@gmail.com', passwordHash: 'scrypt$ec8843bc90e545e401e72dc7ac2f9ee1$ed68dda92e66b94f8558bc05204e8c37fbd2871f649969ab0839e2247426ddaaed16bdb275ed7cef86a7c70a49eb303e903486836ec1ac01afb5ed9193696506', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0xcd3B766CCDd6AE721141F452C550Ca635964ce71' }
 ];
 
 const SEED_APPLICATIONS = [
@@ -25,10 +26,39 @@ const SEED_APPLICATIONS = [
   { id: '0984d761-75d3-4d84-9bfc-66cb5b463ab2', userId: '01a61869-fe69-4651-903e-26f9c94522bd', companyName: 'Surabhi', businessEmail: 'surabhi@gmail.com', contactName: 'Rani', category: 'food', walletAddress: '0x90F79bf6EB2c4f870365E785982E1f101E93b906', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-29T07:40:02.355Z', reviewNote: '', authorizationTxHash: '0xb593b5e05307288e7cf7b9caa7778c0f1a10377960f4202c1b94fb1dc7b63713', createdAt: '2026-10-29T07:38:25.334Z', updatedAt: '2026-10-29T07:40:02.355Z' },
   { id: '60cc926d-b414-49f1-93a6-8672cf18f8e9', userId: '2f335ff1-8f77-44ac-a364-d1e99ee7d64d', companyName: 'Surabhi', businessEmail: 'surbhi@gmail.com', contactName: 'Ganesh', category: 'food', walletAddress: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-29T07:51:08.892Z', reviewNote: '', authorizationTxHash: '0x6077d7d8ff28ee53da808da395c1fa607236a35b8426f8cf7167ee4cba31d32c', createdAt: '2026-10-29T07:50:22.951Z', updatedAt: '2026-10-29T07:51:08.892Z' },
   { id: '05650417-8c27-40a0-98bf-8ef864a69189', userId: 'd0dc13d2-fd98-4114-b5cf-909cb71d97ca', companyName: 'Rukmini', businessEmail: 'rukmini@gmail.com', contactName: '8308309009', category: 'food', walletAddress: '0x14dC79964da2C08b23698B3D3cc7Ca32193d9955', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-29T18:00:44.224Z', reviewNote: '', authorizationTxHash: '0xf0e0592ea4e461cd6a0d163ccc210e2548927b62bedf13d4747b5fa38d05c8b5', createdAt: '2026-10-29T17:59:30.293Z', updatedAt: '2026-10-29T18:00:44.224Z' },
-  { id: '556ca539-a6ea-4f74-bb2c-781c654bd97e', userId: 'af0857db-b9d2-4297-ae0f-3bb9851c362c', companyName: 'E2E Pharma Labs Pvt Ltd', businessEmail: 'e2e-mfg-1793042327059@trusttrace.local', contactName: 'Dr. R. Sharma', category: 'medicine', walletAddress: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-26T19:18:47.614Z', reviewNote: 'E2E live verification approval', authorizationTxHash: '0xd749f40b2302ccf1fbb329ee6589608c663c10b26d1f129f96caa16dae3b54a5', createdAt: '2026-10-26T19:18:47.169Z', updatedAt: '2026-10-26T19:18:47.614Z' }
+  { id: '556ca539-a6ea-4f74-bb2c-781c654bd97e', userId: 'af0857db-b9d2-4297-ae0f-3bb9851c362c', companyName: 'E2E Pharma Labs Pvt Ltd', businessEmail: 'e2e-mfg-1793042327059@trusttrace.local', contactName: 'Dr. R. Sharma', category: 'medicine', walletAddress: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-26T19:18:47.614Z', reviewNote: 'E2E live verification approval', authorizationTxHash: '0xd749f40b2302ccf1fbb329ee6589608c663c10b26d1f129f96caa16dae3b54a5', createdAt: '2026-10-26T19:18:47.169Z', updatedAt: '2026-10-26T19:18:47.614Z' },
+  { id: '71a38d53-c017-4826-ace9-3a1df387ff52', userId: '6499d7e4-799e-4fa3-b52b-c3b39624f0ed', companyName: 'VBP', businessEmail: 'vbpatil@gmail.com', contactName: 'maruti patil', category: 'food', walletAddress: '0xcd3B766CCDd6AE721141F452C550Ca635964ce71', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-30T02:37:43.967Z', reviewNote: '', authorizationTxHash: '0x23b800254c39f5290dc77ed602d6bb504334987ed39bf01ba0f58fd2c606373e', createdAt: '2026-10-30T02:36:15.450Z', updatedAt: '2026-10-30T02:37:43.967Z' }
 ];
 
 const SEED_PRODUCTS = [
+  {
+    id: '858017ab-f5c6-4b5b-adbe-4170dbcfc6e9',
+    productId: 'PROD-MVUD7X0S-61BCFC',
+    name: 'Maggi Tomato kethup',
+    brand: 'maggi',
+    category: 'food',
+    sku: '75gm',
+    batchNumber: 'BATCH-202645',
+    unitSerial: '278384937',
+    manufactureDate: '2026-10-30',
+    expiryDate: '2026-11-30',
+    manufacturerUserId: '6499d7e4-799e-4fa3-b52b-c3b39624f0ed',
+    manufacturerName: 'VBP (Maruti Patil)',
+    manufacturerWallet: '0xcd3B766CCDd6AE721141F452C550Ca635964ce71',
+    referenceImageCID: 'QmUSXdXMpytgw1GanprK4z4mJGB9VoKozyfhWd68Djkka7',
+    metadataCID: 'QmXu1JuUznwqzMyD5CJW3ZCvSqUZFNpqKTUXhb4uDrRdH7',
+    metadataHash: '0x0a2e6c9640d91ab7dddc6f212a5ada39b05a66c83760709a67a325778e133636',
+    chainId: MST_MAINNET_CHAIN_ID,
+    contractAddress: MST_CONTRACT_ADDRESS,
+    txHash: '0xef6311fe53ca29839c8d718b9eb0fe05f919b5d3e764f172ccb5d0129c0f7997',
+    transactionHash: '0xef6311fe53ca29839c8d718b9eb0fe05f919b5d3e764f172ccb5d0129c0f7997',
+    qrFilename: 'PROD-MVUD7X0S-61BCFC.png',
+    qrUrl: '/uploads/qr_codes/PROD-MVUD7X0S-61BCFC.png',
+    referenceImageUrl: '/uploads/ipfs_cache/QmUSXdXMpytgw1GanprK4z4mJGB9VoKozyfhWd68Djkka7.jpg',
+    referenceImageGatewayUrl: 'https://gateway.pinata.cloud/ipfs/QmUSXdXMpytgw1GanprK4z4mJGB9VoKozyfhWd68Djkka7',
+    status: 'REGISTERED',
+    createdAt: '2026-10-30T02:40:56.812Z'
+  },
   {
     id: '3e9368ae-c99c-4f0e-9bfe-36cc604801d2',
     productId: 'PROD-MVTUS047-7D908B',
@@ -234,12 +264,24 @@ function getCloudState() {
     const raw = localStorage.getItem(CLOUD_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
+      const userMap = new Map();
+      (SEED_USERS || []).forEach(u => userMap.set(u.email.toLowerCase(), u));
+      (parsed.users || []).forEach(u => userMap.set(u.email.toLowerCase(), { ...userMap.get(u.email.toLowerCase()), ...u }));
+
+      const appMap = new Map();
+      (SEED_APPLICATIONS || []).forEach(a => appMap.set(a.id, a));
+      (parsed.applications || []).forEach(a => appMap.set(a.id, { ...appMap.get(a.id), ...a }));
+
+      const prodMap = new Map();
+      (SEED_PRODUCTS || []).forEach(p => prodMap.set(p.productId.toUpperCase(), p));
+      (parsed.products || []).forEach(p => prodMap.set(p.productId.toUpperCase(), { ...prodMap.get(p.productId.toUpperCase()), ...p }));
+
       return {
-        users: parsed.users?.length ? parsed.users : [...SEED_USERS],
-        products: parsed.products?.length ? parsed.products : [...SEED_PRODUCTS],
+        users: Array.from(userMap.values()),
+        products: Array.from(prodMap.values()),
         sessions: parsed.sessions || [],
         scanEvents: parsed.scanEvents || [],
-        applications: parsed.applications?.length ? parsed.applications : [...SEED_APPLICATIONS]
+        applications: Array.from(appMap.values())
       };
     }
   } catch { /* ignore */ }
@@ -256,6 +298,146 @@ function saveCloudState(state) {
   try {
     localStorage.setItem(CLOUD_STORAGE_KEY, JSON.stringify(state));
   } catch { /* ignore */ }
+}
+
+function decodeAbiString(hex, byteOffset) {
+  if (!hex || byteOffset * 2 >= hex.length) return '';
+  const len = parseInt(hex.slice(byteOffset * 2, byteOffset * 2 + 64), 16);
+  if (!len || isNaN(len) || len <= 0) return '';
+  const strHex = hex.slice(byteOffset * 2 + 64, byteOffset * 2 + 64 + len * 2);
+  const bytes = [];
+  for (let i = 0; i < strHex.length; i += 2) {
+    bytes.push(parseInt(strHex.substr(i, 2), 16));
+  }
+  try {
+    return new TextDecoder().decode(new Uint8Array(bytes));
+  } catch {
+    return '';
+  }
+}
+
+async function fetchProductFromMstMainnet(productId) {
+  if (!productId || typeof productId !== 'string') return null;
+  const cleanPid = productId.trim().toUpperCase();
+  try {
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(cleanPid);
+    let hexPid = '';
+    for (let i = 0; i < bytes.length; i++) {
+      hexPid += bytes[i].toString(16).padStart(2, '0');
+    }
+    const paddedPid = hexPid.padEnd(Math.ceil(hexPid.length / 64) * 64, '0');
+    const lenHex = bytes.length.toString(16).padStart(64, '0');
+    const offset = '0000000000000000000000000000000000000000000000000000000000000020';
+
+    const calldata1 = '0x92efc453' + offset + lenHex + paddedPid;
+    const res1 = await fetch(MST_MAINNET_RPC, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_call', params: [{ to: MST_CONTRACT_ADDRESS, data: calldata1 }, 'latest'] })
+    });
+    const json1 = await res1.json();
+    if (!json1?.result || json1.result === '0x' || json1.result.length < 514) return null;
+
+    const hex1 = json1.result.startsWith('0x') ? json1.result.slice(2) : json1.result;
+    const exists = parseInt(hex1.slice(320, 384), 16) === 1;
+    if (!exists) return null;
+
+    const offsetName = parseInt(hex1.slice(0, 64), 16);
+    const offsetBatch = parseInt(hex1.slice(64, 128), 16);
+    const offsetRefCID = parseInt(hex1.slice(128, 192), 16);
+    const mfg = '0x' + hex1.slice(192 + 24, 256);
+    const registeredAtNum = parseInt(hex1.slice(256, 320), 16);
+
+    const name = decodeAbiString(hex1, offsetName);
+    const batchNumber = decodeAbiString(hex1, offsetBatch);
+    const referenceImageCID = decodeAbiString(hex1, offsetRefCID);
+
+    let brand = '';
+    let category = 'food';
+    let sku = '';
+    let unitSerial = '';
+    let manufactureDate = new Date(registeredAtNum > 0 ? registeredAtNum * 1000 : Date.now()).toISOString().slice(0, 10);
+    let expiryDate = null;
+    let metadataCID = '';
+    let metadataHash = '0x';
+
+    try {
+      const calldata2 = '0xba7da586' + offset + lenHex + paddedPid;
+      const res2 = await fetch(MST_MAINNET_RPC, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'eth_call', params: [{ to: MST_CONTRACT_ADDRESS, data: calldata2 }, 'latest'] })
+      });
+      const json2 = await res2.json();
+      if (json2?.result && json2.result !== '0x' && json2.result.length > 100) {
+        const hex2 = json2.result.startsWith('0x') ? json2.result.slice(2) : json2.result;
+        brand = decodeAbiString(hex2, parseInt(hex2.slice(0, 64), 16));
+        category = decodeAbiString(hex2, parseInt(hex2.slice(64, 128), 16)) || 'food';
+        sku = decodeAbiString(hex2, parseInt(hex2.slice(128, 192), 16));
+        unitSerial = decodeAbiString(hex2, parseInt(hex2.slice(192, 256), 16));
+        manufactureDate = decodeAbiString(hex2, parseInt(hex2.slice(256, 320), 16)) || manufactureDate;
+        expiryDate = decodeAbiString(hex2, parseInt(hex2.slice(320, 384), 16)) || null;
+        metadataCID = decodeAbiString(hex2, parseInt(hex2.slice(384, 448), 16));
+        metadataHash = '0x' + hex2.slice(448, 512);
+      }
+    } catch { /* non-fatal */ }
+
+    let manufacturerName = `Authorized Manufacturer (${mfg.slice(0, 6)}...${mfg.slice(-4)})`;
+    if (metadataCID) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3500);
+        const metaRes = await fetch(`https://gateway.pinata.cloud/ipfs/${metadataCID}`, { signal: controller.signal });
+        clearTimeout(timeout);
+        if (metaRes.ok) {
+          const metaJson = await metaRes.json();
+          if (metaJson.manufacturerName) manufacturerName = metaJson.manufacturerName;
+          if (metaJson.brand && !brand) brand = metaJson.brand;
+          if (metaJson.name && !name) name = metaJson.name;
+        }
+      } catch { /* use on-chain defaults */ }
+    }
+
+    const basePrefix = (typeof window !== 'undefined' && window.location?.pathname.startsWith('/trusttrace')) ? '/trusttrace' : '';
+    const verifyUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://vaishnavivarad.github.io'}${basePrefix}/verify/${encodeURIComponent(cleanPid)}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=12&data=${encodeURIComponent(verifyUrl)}`;
+    const pinataImgUrl = `https://gateway.pinata.cloud/ipfs/${referenceImageCID}`;
+
+    const prod = {
+      id: `prod_mst_${cleanPid}`,
+      productId: cleanPid,
+      name: name || 'Verified Product',
+      brand: brand || 'Verified Brand',
+      category: category || 'food',
+      sku: sku || 'Standard',
+      batchNumber: batchNumber || 'BATCH-MAINNET',
+      unitSerial: unitSerial || cleanPid,
+      manufactureDate,
+      expiryDate,
+      manufacturerUserId: null,
+      manufacturerName,
+      manufacturerWallet: mfg,
+      referenceImageCID,
+      metadataCID,
+      metadataHash,
+      chainId: MST_MAINNET_CHAIN_ID,
+      contractAddress: MST_CONTRACT_ADDRESS,
+      txHash: '0x' + '0'.repeat(64),
+      transactionHash: '0x' + '0'.repeat(64),
+      qrFilename: `${cleanPid}.png`,
+      qrUrl,
+      referenceImageUrl: pinataImgUrl,
+      referenceImageGatewayUrl: pinataImgUrl,
+      status: 'REGISTERED',
+      createdAt: new Date(registeredAtNum > 0 ? registeredAtNum * 1000 : Date.now()).toISOString()
+    };
+
+    return prod;
+  } catch (err) {
+    console.warn('[CloudEngine] MST Mainnet fetch error for', productId, err);
+    return null;
+  }
 }
 
 function salsa20_8(B) {
@@ -891,7 +1073,27 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
   const prodMatch = cleanPath.match(/^\/products\/([^/]+)$/);
   if (prodMatch && method === 'GET') {
     const pid = decodeURIComponent(prodMatch[1]).trim();
-    const product = state.products.find(p => p.productId.toUpperCase() === pid.toUpperCase());
+    let product = state.products.find(p => p.productId.toUpperCase() === pid.toUpperCase());
+    if (!product) {
+      product = await fetchProductFromMstMainnet(pid);
+      if (product) {
+        state.products.unshift(product);
+        state.scanEvents.push({
+          id: `scan_origin_${Date.now()}`,
+          productId: product.productId,
+          scanType: 'MANUFACTURER_ORIGIN',
+          locationName: 'Pune, Maharashtra',
+          latitude: 18.5204,
+          longitude: 73.8567,
+          timestamp: product.createdAt,
+          distanceKm: 0,
+          elapsedSeconds: 0,
+          estimatedSpeedKmh: 0,
+          caspgStatus: 'ORIGIN_RECORDED'
+        });
+        saveCloudState(state);
+      }
+    }
     if (!product) {
       const err = new Error(`Product ${pid} is not registered on MST Mainnet (Chain ID 4646).`);
       err.code = 'UNREGISTERED_PRODUCT';
@@ -1043,7 +1245,27 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
   if (cleanPath === '/verification/start' && method === 'POST') {
     const payload = typeof body === 'string' ? JSON.parse(body) : body;
     const pid = String(payload?.productId || '').trim();
-    const product = state.products.find(p => p.productId.toUpperCase() === pid.toUpperCase());
+    let product = state.products.find(p => p.productId.toUpperCase() === pid.toUpperCase());
+    if (!product) {
+      product = await fetchProductFromMstMainnet(pid);
+      if (product) {
+        state.products.unshift(product);
+        state.scanEvents.push({
+          id: `scan_origin_${Date.now()}`,
+          productId: product.productId,
+          scanType: 'MANUFACTURER_ORIGIN',
+          locationName: 'Pune, Maharashtra',
+          latitude: 18.5204,
+          longitude: 73.8567,
+          timestamp: product.createdAt,
+          distanceKm: 0,
+          elapsedSeconds: 0,
+          estimatedSpeedKmh: 0,
+          caspgStatus: 'ORIGIN_RECORDED'
+        });
+        saveCloudState(state);
+      }
+    }
     if (!product) {
       const err = new Error('This Product ID is not registered on MST Mainnet.');
       err.code = 'UNREGISTERED_PRODUCT';

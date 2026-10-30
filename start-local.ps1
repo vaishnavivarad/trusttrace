@@ -34,46 +34,57 @@ function Get-RpcChainId([string]$RpcUrl) {
 
 Write-Host "=== TrustTrace Local Startup & Recovery Workflow ===" -ForegroundColor Cyan
 
-# 1. Start or reuse a single local Hardhat node on port 8545
-if (Test-PortListening 8545) {
-    Write-Host "[1/5] Port 8545 is already active. Reusing existing RPC node..." -ForegroundColor Green
-} else {
-    Write-Host "[1/5] Starting local Hardhat node on http://127.0.0.1:8545..." -ForegroundColor Yellow
-    Start-Process -FilePath $env:ComSpec -ArgumentList "/c npx hardhat node" -WorkingDirectory $BlockchainDir -WindowStyle Hidden
+$EnvFile = Join-Path $BackendDir ".env"
+$ConfiguredChainId = "31337"
+if (Test-Path $EnvFile) {
+    $m = Select-String -Path $EnvFile -Pattern "^\s*BLOCKCHAIN_CHAIN_ID\s*=\s*(\d+)" | Select-Object -First 1
+    if ($m) { $ConfiguredChainId = $m.Matches[0].Groups[1].Value }
 }
 
-# 2. Wait for RPC readiness and verify chainId == 31337
-$rpcReady = $false
-for ($i = 0; $i -lt 25; $i++) {
+if ($ConfiguredChainId -eq "31337") {
+    # 1. Start or reuse a single local Hardhat node on port 8545
     if (Test-PortListening 8545) {
-        try {
-            $chainId = Get-RpcChainId "http://127.0.0.1:8545"
-            if ($chainId -ne 31337) {
-                throw "CHAIN_ID_MISMATCH: RPC on port 8545 returned chainId $chainId (expected 31337 for local Hardhat)."
-            }
-            $rpcReady = $true
-            Write-Host "[2/5] Local Hardhat RPC ready (verified chainId = $chainId)." -ForegroundColor Green
-            break
-        } catch {
-            if ($_.Exception.Message -match "CHAIN_ID_MISMATCH") { throw $_ }
-        }
+        Write-Host "[1/5] Port 8545 is already active. Reusing existing RPC node..." -ForegroundColor Green
+    } else {
+        Write-Host "[1/5] Starting local Hardhat node on http://127.0.0.1:8545..." -ForegroundColor Yellow
+        Start-Process -FilePath $env:ComSpec -ArgumentList "/c npx hardhat node" -WorkingDirectory $BlockchainDir -WindowStyle Hidden
     }
-    Start-Sleep -Seconds 1
-}
-if (-not $rpcReady) {
-    throw "Local Hardhat RPC at http://127.0.0.1:8545 did not become ready within 25 seconds."
-}
 
-# 3. Deploy/verify ProductAuth, update local-deployment.json + backend/.env, and restore manufacturers & products
-Write-Host "[3/5] Running idempotent local chain synchronization (syncLocalChainState.js)..." -ForegroundColor Cyan
-Push-Location $BackendDir
-try {
-    node scripts/syncLocalChainState.js
-    if ($LASTEXITCODE -ne 0) {
-        throw "syncLocalChainState.js exited with code $LASTEXITCODE"
+    # 2. Wait for RPC readiness and verify chainId == 31337
+    $rpcReady = $false
+    for ($i = 0; $i -lt 25; $i++) {
+        if (Test-PortListening 8545) {
+            try {
+                $chainId = Get-RpcChainId "http://127.0.0.1:8545"
+                if ($chainId -ne 31337) {
+                    throw "CHAIN_ID_MISMATCH: RPC on port 8545 returned chainId $chainId (expected 31337 for local Hardhat)."
+                }
+                $rpcReady = $true
+                Write-Host "[2/5] Local Hardhat RPC ready (verified chainId = $chainId)." -ForegroundColor Green
+                break
+            } catch {
+                if ($_.Exception.Message -match "CHAIN_ID_MISMATCH") { throw $_ }
+            }
+        }
+        Start-Sleep -Seconds 1
     }
-} finally {
-    Pop-Location
+    if (-not $rpcReady) {
+        throw "Local Hardhat RPC at http://127.0.0.1:8545 did not become ready within 25 seconds."
+    }
+
+    # 3. Deploy/verify ProductAuth, update local-deployment.json + backend/.env, and restore manufacturers & products
+    Write-Host "[3/5] Running idempotent local chain synchronization (syncLocalChainState.js)..." -ForegroundColor Cyan
+    Push-Location $BackendDir
+    try {
+        node scripts/syncLocalChainState.js
+        if ($LASTEXITCODE -ne 0) {
+            throw "syncLocalChainState.js exited with code $LASTEXITCODE"
+        }
+    } finally {
+        Pop-Location
+    }
+} else {
+    Write-Host "[1-3/5] Configured for external network (chainId = $ConfiguredChainId). Skipping local Hardhat node." -ForegroundColor Green
 }
 
 # 4. Ensure ML Service (8000) and Backend API (5000) are running

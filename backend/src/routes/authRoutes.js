@@ -90,6 +90,11 @@ router.get('/me', requireAuth, async (req, res) => {
       const blockchain = require('../services/blockchainService');
       configuredContractAddress = blockchain.getConfiguredContractAddress() || null;
       onChainAuthorized = await blockchain.isAuthorizedManufacturer(app.walletAddress);
+      if (onChainAuthorized === false && app.status === 'APPROVED') {
+        const authRes = await blockchain.authorizeManufacturer(app.walletAddress);
+        await store.update('applications', app.id, { authorizationTxHash: authRes.txHash });
+        onChainAuthorized = true;
+      }
     } catch {
       onChainAuthorized = null;
     }

@@ -3,6 +3,7 @@ const store = require('../services/appStore');
 const blockchain = require('../services/blockchainService');
 const ipfs = require('../services/ipfsService');
 const { generateQRCode, getVerificationUrl } = require('../services/qrService');
+const { detectNetworkLocation, resolveLocationName } = require('../services/caspgService');
 
 function makeProductId() { return `PROD-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`; }
 function safeDate(value) { if (!value) return null; const d = new Date(value); return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10); }
@@ -73,7 +74,14 @@ async function registerProduct(req, res, next) {
     if (req.file.size > 8 * 1024 * 1024) return res.status(413).json({ success: false, code: 'IMAGE_TOO_LARGE', message: 'Reference image must be 8 MB or smaller.' });
     const productId = makeProductId();
     let authorized;
-    try { authorized = await blockchain.isAuthorizedManufacturer(application.walletAddress); }
+    try {
+      authorized = await blockchain.isAuthorizedManufacturer(application.walletAddress);
+      if (!authorized && application.status === 'APPROVED') {
+        const authRes = await blockchain.authorizeManufacturer(application.walletAddress);
+        await store.update('applications', application.id, { authorizationTxHash: authRes.txHash });
+        authorized = true;
+      }
+    }
     catch (error) { return res.status(503).json({ success: false, code: 'BLOCKCHAIN_UNAVAILABLE', message: `Could not verify manufacturer authorization on the blockchain: ${error.message}` }); }
     if (!authorized) return res.status(403).json({ success: false, code: 'WALLET_NOT_AUTHORIZED_ON_CHAIN', message: 'This manufacturer wallet has not been authorized on the configured blockchain.' });
 
@@ -123,6 +131,39 @@ async function registerProduct(req, res, next) {
     createdRecord = updated;
     let auditLogStatus = 'RECORDED';
     try {
+      let originLat = Number(req.body?.originLatitude);
+      let originLon = Number(req.body?.originLongitude);
+      let originLocName = String(req.body?.originLocationName || '').trim();
+      if (!Number.isFinite(originLat) || !Number.isFinite(originLon)) {
+        const netLoc = await detectNetworkLocation();
+        originLat = netLoc.latitude;
+        originLon = netLoc.longitude;
+        if (!originLocName) originLocName = netLoc.locationName;
+      }
+      originLocName = resolveLocationName(originLat, originLon, originLocName);
+      await store.insert('scanEvents', {
+        id: crypto.randomUUID(),
+        productId,
+        sessionId: `ORIGIN_${productId}`,
+        userId: req.user.id,
+        serverReceivedAt: now,
+        latitude: originLat,
+        longitude: originLon,
+        accuracyMeters: 25,
+        locationConsent: true,
+        previousScanId: null,
+        distanceKm: 0,
+        elapsedSeconds: 0,
+        estimatedSpeedKmh: 0,
+        caspgStatus: 'ORIGIN_REGISTERED',
+        reasonCode: `LOC:${originLocName}`,
+        evidenceHash: metadataHash,
+        chainAuditTxHash: chainResult.txHash
+      });
+    } catch (originErr) {
+      console.warn(`Could not record manufacturer origin scan event for ${productId}: ${originErr.message}`);
+    }
+    try {
       await store.createAudit('PRODUCT_REGISTERED_ON_CHAIN', req.user.id, 'Product', productId, 'SUCCESS', { txHash: chainResult.txHash, referenceImageCID: imageUpload.cid, metadataCID: metadataUpload.cid });
     } catch (auditError) {
       // Registration is already confirmed on-chain. Do not mark the product failed
@@ -152,11 +193,45 @@ async function registerProduct(req, res, next) {
   }
 }
 
+async function syncExistingDbProductIfMissingOnChain(productId, currentChain) {
+  if (currentChain?.exists) return currentChain;
+  const record = await store.findProductByProductId(productId);
+  if (!record || record.status !== 'REGISTERED' || !record.referenceImageCID || !record.manufacturerWallet) {
+    return currentChain;
+  }
+  try {
+    const isAuth = await blockchain.isAuthorizedManufacturer(record.manufacturerWallet);
+    if (!isAuth) {
+      await blockchain.authorizeManufacturer(record.manufacturerWallet);
+    }
+    const metaHash = /^0x[0-9a-fA-F]{64}$/.test(record.metadataHash || '')
+      ? record.metadataHash
+      : blockchain.metadataHash({ productId: record.productId, name: record.name, batchNumber: record.batchNumber });
+    const res = await blockchain.registerProductOnChain(
+      record,
+      { referenceImageCID: record.referenceImageCID, metadataCID: record.metadataCID || '' },
+      metaHash
+    );
+    await store.update('products', record.id, {
+      txHash: res.txHash,
+      chainId: res.chainId,
+      contractAddress: res.contractAddress
+    });
+    return await blockchain.verifyProduct(productId);
+  } catch (err) {
+    console.warn(`On-demand chain sync for ${productId} skipped: ${err.message}`);
+    return currentChain;
+  }
+}
+
 async function getProduct(req, res, next) {
   try {
     const productId = String(req.params.productId || '');
     let chain, details;
-    try { chain = await blockchain.verifyProduct(productId); }
+    try {
+      chain = await blockchain.verifyProduct(productId);
+      if (!chain.exists) chain = await syncExistingDbProductIfMissingOnChain(productId, chain);
+    }
     catch (error) { return res.status(503).json({ success: false, code: 'BLOCKCHAIN_UNAVAILABLE', message: `Could not verify the product record on-chain: ${error.message}` }); }
     if (!chain.exists) return res.status(404).json({ success: false, code: 'UNREGISTERED_PRODUCT', message: 'This Product ID was not found on the configured blockchain.', productId });
     try { details = await blockchain.verifyProductDetails(productId); } catch { details = null; }
@@ -176,6 +251,26 @@ async function getProduct(req, res, next) {
       if (matchApp?.companyName) manufacturerName = matchApp.companyName;
     }
     const product = publicProduct(record, chain, details, { manufacturerName });
+    try {
+      const scans = (await store.all('scanEvents'))
+        .filter(s => s.productId === productId && s.locationConsent && Number.isFinite(Number(s.latitude)) && Number.isFinite(Number(s.longitude)))
+        .sort((a, b) => new Date(a.serverReceivedAt).getTime() - new Date(b.serverReceivedAt).getTime())
+        .map(s => ({
+          id: s.id,
+          scanType: s.caspgStatus === 'ORIGIN_REGISTERED' || String(s.sessionId || '').startsWith('ORIGIN_') ? 'MANUFACTURER_ORIGIN' : 'CUSTOMER_SCAN',
+          locationName: resolveLocationName(s.latitude, s.longitude, String(s.reasonCode || '').startsWith('LOC:') ? String(s.reasonCode).slice(4) : null),
+          latitude: Number(s.latitude),
+          longitude: Number(s.longitude),
+          timestamp: s.serverReceivedAt,
+          distanceKm: s.distanceKm,
+          elapsedSeconds: s.elapsedSeconds,
+          estimatedSpeedKmh: s.estimatedSpeedKmh,
+          caspgStatus: s.caspgStatus
+        }));
+      product.scanHistory = scans;
+      product.originLocation = scans.find(s => s.scanType === 'MANUFACTURER_ORIGIN') || scans[0] || null;
+      product.latestScan = scans.length ? scans[scans.length - 1] : null;
+    } catch { /* non-fatal */ }
     return res.json({ success: true, product, sourceOfTruth: 'blockchain', chain: { contractAddress: process.env.BLOCKCHAIN_CONTRACT_ADDRESS, chainId: process.env.BLOCKCHAIN_CHAIN_ID || null } });
   } catch (error) { next(error); }
 }
@@ -183,7 +278,10 @@ async function getProductReferenceImage(req, res, next) {
   try {
     const productId = String(req.params.productId || '');
     let chain;
-    try { chain = await blockchain.verifyProduct(productId); }
+    try {
+      chain = await blockchain.verifyProduct(productId);
+      if (!chain.exists) chain = await syncExistingDbProductIfMissingOnChain(productId, chain);
+    }
     catch (error) { return res.status(503).json({ success: false, code: 'BLOCKCHAIN_UNAVAILABLE', message: `Could not verify the product record on-chain: ${error.message}` }); }
     if (!chain.exists) return res.status(404).json({ success: false, code: 'UNREGISTERED_PRODUCT', message: 'This Product ID was not found on the configured blockchain.', productId });
     const record = await store.findProductByProductId(productId);
@@ -222,7 +320,10 @@ async function getProductQr(req, res, next) {
     const product = await store.findProductByProductId(productId);
     if (req.user.role !== 'admin' && (!product || product.manufacturerUserId !== req.user.id)) return res.status(403).json({ success: false, code: 'PRODUCT_ACCESS_DENIED', message: 'You can only generate/download QR codes for your own products.' });
     let chain;
-    try { chain = await blockchain.verifyProduct(productId); }
+    try {
+      chain = await blockchain.verifyProduct(productId);
+      if (!chain.exists) chain = await syncExistingDbProductIfMissingOnChain(productId, chain);
+    }
     catch (error) { return res.status(503).json({ success: false, code: 'BLOCKCHAIN_UNAVAILABLE', message: `Could not verify the product record on-chain: ${error.message}` }); }
     if (!chain.exists) return res.status(404).json({ success: false, code: 'UNREGISTERED_PRODUCT', message: 'QR cannot be generated for an unregistered product.' });
     const qr = await generateQRCode(productId);
