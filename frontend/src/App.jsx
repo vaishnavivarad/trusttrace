@@ -186,23 +186,14 @@ async function apiRequest(path, { token, ...options } = {}) {
   const headers = { ...(options.headers || {}) };
   if (token) headers.Authorization = `Bearer ${token}`;
   if (options.body && !(options.body instanceof FormData) && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-  try {
-    const response = await fetch(`${API}${path}`, { ...options, headers });
-    const contentType = String(response.headers.get('content-type') || '');
-    if (!contentType.includes('application/json') && response.status === 404) {
-      return handleCloudApiRequest(path, { token, ...options });
-    }
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok || body.success === false) {
-      const error = new Error(body.message || `Request failed (${response.status}).`);
-      error.code = body.code || 'REQUEST_FAILED'; error.status = response.status;
-      throw error;
-    }
-    return body;
-  } catch (err) {
-    if (err?.status) throw err;
-    return handleCloudApiRequest(path, { token, ...options });
+  const response = await fetch(`${API}${path}`, { ...options, headers });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || body.success === false) {
+    const error = new Error(body.message || `Request failed (${response.status}).`);
+    error.code = body.code || 'REQUEST_FAILED'; error.status = response.status;
+    throw error;
   }
+  return body;
 }
 function initials(name = '') { return name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'TT'; }
 function formatDate(value) { if (!value) return '—'; const date = new Date(value); return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString(); }
@@ -339,16 +330,27 @@ function LoginPage({ navigate, setSession, notify }) {
   return <AuthFrame title="Sign in to your account" description="Use your registered account to access your TrustTrace workspace."><form className="form-stack" onSubmit={submit}><label>Email address<input type="email" autoComplete="email" required placeholder="you@company.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></label><label>Password<span className="password-wrap"><input type={show ? 'text' : 'password'} autoComplete="current-password" required placeholder="Enter your password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} /><button type="button" className="password-toggle" onClick={() => setShow(v => !v)} aria-label={show ? 'Hide password' : 'Show password'}>{show ? <EyeOff size={17} /> : <Eye size={17} />}</button></span></label>{error && <div className="inline-error"><AlertCircle size={17} />{error}</div>}<button className="btn btn-primary btn-block" disabled={loading}>{loading ? <><LoaderCircle className="spin" size={17} /> Signing in...</> : <>Sign in <ArrowRight size={17} /></>}</button><div className="auth-helper">Manufacturer accounts need admin approval and on-chain wallet authorization before registering products.</div></form><div className="auth-bottom">New to TrustTrace? <button onClick={() => navigate('signup')}>Create an account</button></div></AuthFrame>;
 }
 const LOCAL_HARDHAT_PUBLIC_WALLETS = [
-  { label: 'Test Wallet #1 (0x7099...79C8)', address: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' },
-  { label: 'Test Wallet #2 (0x3C44...93BC)', address: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC' },
-  { label: 'Test Wallet #3 (0x90F7...b906)', address: '0x90F79bf6EB2c4f870365E785982E1f101E93b906' },
-  { label: 'Test Wallet #4 (0x15d3...6A65)', address: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65' },
-  { label: 'Test Wallet #5 (0x9965...A4dc)', address: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc' },
-  { label: 'Test Wallet #6 (0x976E...0aa9)', address: '0x976EA74026E726554dB657fA54763abd0C3a0aa9' },
-  { label: 'Test Wallet #7 (0x14dC...9955)', address: '0x14dC79964da2C08b23698B3D3cc7Ca32193d9955' },
-  { label: 'Test Wallet #8 (0x2361...1E8f)', address: '0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f' }
+  { label: 'Unused Wallet #1 (0x976E...0aa9)', address: '0x976EA74026E726554dB657fA54763abd0C3a0aa9' },
+  { label: 'Unused Wallet #2 (0x2361...1E8f)', address: '0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f' },
+  { label: 'Unused Wallet #3 (0xa0Ee...9720)', address: '0xa0Ee7A142d267C1f36714E4a8F75612F20a79720' },
+  { label: 'Unused Wallet #4 (0xBcd4...4096)', address: '0xBcd4042DE499D14e55001CcbB24a551F3b954096' },
+  { label: 'Unused Wallet #5 (0x71bE...5788)', address: '0x71bE63f3384f5fb98995898A86B02Fb2426c5788' },
+  { label: 'Unused Wallet #6 (0xFABB...694a)', address: '0xFABB0ac9d68B0B445fB7357272Ff202C5651694a' },
+  { label: 'Unused Wallet #7 (0x1CBd...C9Ec)', address: '0x1CBd3b2770909D4e10f157cABC84C7264073C9Ec' },
+  { label: 'Unused Wallet #8 (0xdF3e...7097)', address: '0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097' },
+  { label: 'Unused Wallet #9 (0xcd3B...ce71)', address: '0xcd3B766CCDd6AE721141F452C550Ca635964ce71' },
+  { label: 'Unused Wallet #10 (0x2546...Ec30)', address: '0x2546BcD3c84621e976D8185a91A922aE77ECEc30' },
+  { label: 'Unused Wallet #11 (0xbDA5...197E)', address: '0xbDA5747bFD65F08deb54cb465eB87D40e51B197E' },
+  { label: 'Unused Wallet #12 (0xdD2F...44C0)', address: '0xdD2FD4581271e230360230F9337D5c0430Bf44C0' },
+  { label: 'Unused Wallet #13 (0x8626...1199)', address: '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199' },
+  { label: 'Test Wallet (0x7099...79C8)', address: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' },
+  { label: 'Test Wallet (0x3C44...93BC)', address: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC' },
+  { label: 'Test Wallet (0x90F7...b906)', address: '0x90F79bf6EB2c4f870365E785982E1f101E93b906' },
+  { label: 'Test Wallet (0x15d3...6A65)', address: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65' },
+  { label: 'Test Wallet (0x9965...A4dc)', address: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc' },
+  { label: 'Test Wallet (0x14dC...9955)', address: '0x14dC79964da2C08b23698B3D3cc7Ca32193d9955' }
 ];
-const SHOW_LOCAL_WALLET_HELPERS = import.meta.env.DEV || import.meta.env.VITE_SHOW_LOCAL_WALLET_HELPERS === 'true';
+const SHOW_LOCAL_WALLET_HELPERS = true;
 
 function SignupPage({ navigate, setSession, notify }) {
   const [role, setRole] = useState('customer'); const [loading, setLoading] = useState(false); const [error, setError] = useState('');
@@ -372,7 +374,7 @@ function SignupPage({ navigate, setSession, notify }) {
 }
 
 function DashboardLayout({ user, title, navItems, active, onNavigate, children, sideLabel }) {
-  return <main className="dashboard-layout"><aside className="dashboard-sidebar"><div className="sidebar-brand"><span className="brand-symbol"><ShieldCheck size={23} /></span><span><strong>TrustTrace</strong><small>{sideLabel}</small></span></div><div className="sidebar-profile"><span className="profile-avatar">{initials(user?.name)}</span><span><strong>{user?.name || 'Guest'}</strong><small>{user?.role || 'visitor'}</small></span><span className="profile-status" /></div><div className="sidebar-label">WORKSPACE</div><nav className="sidebar-nav">{navItems.map(item => <button key={item.id} className={active === item.id ? 'active' : ''} onClick={() => onNavigate(item.id)}><item.icon size={18} /><span>{item.label}</span>{item.count > 0 && <em>{item.count}</em>}</button>)}</nav><div className="sidebar-bottom"><div className="help-card"><Shield size={18} /><strong>Your data, checked.</strong><p>Every verification shows what was checked and what remains uncertain.</p></div><button className="sidebar-logout" onClick={() => { localStorage.removeItem('trusttrace_token'); localStorage.removeItem('trusttrace_user'); window.location.href = '/'; }}><LogOut size={17} />Sign out</button></div></aside><section className="dashboard-main"><div className="dashboard-top"><div className="breadcrumb"><span>TrustTrace</span><span>/</span><strong>{title}</strong></div><div className="dashboard-top-actions"><span className="network-pill"><span className="network-dot" /> MST Coral Testnet (54635)</span><span className="avatar-mini">{initials(user?.name)}</span></div></div><div className="dashboard-content">{children}</div></section></main>;
+  return <main className="dashboard-layout"><aside className="dashboard-sidebar"><div className="sidebar-brand"><span className="brand-symbol"><ShieldCheck size={23} /></span><span><strong>TrustTrace</strong><small>{sideLabel}</small></span></div><div className="sidebar-profile"><span className="profile-avatar">{initials(user?.name)}</span><span><strong>{user?.name || 'Guest'}</strong><small>{user?.role || 'visitor'}</small></span><span className="profile-status" /></div><div className="sidebar-label">WORKSPACE</div><nav className="sidebar-nav">{navItems.map(item => <button key={item.id} className={active === item.id ? 'active' : ''} onClick={() => onNavigate(item.id)}><item.icon size={18} /><span>{item.label}</span>{item.count > 0 && <em>{item.count}</em>}</button>)}</nav><div className="sidebar-bottom"><div className="help-card"><Shield size={18} /><strong>Your data, checked.</strong><p>Every verification shows what was checked and what remains uncertain.</p></div><button className="sidebar-logout" onClick={() => { localStorage.removeItem('trusttrace_token'); localStorage.removeItem('trusttrace_user'); window.location.href = `${BASE_PREFIX}/`; }}><LogOut size={17} />Sign out</button></div></aside><section className="dashboard-main"><div className="dashboard-top"><div className="breadcrumb"><span>TrustTrace</span><span>/</span><strong>{title}</strong></div><div className="dashboard-top-actions"><span className="network-pill"><span className="network-dot" /> MST Mainnet (4646)</span><span className="avatar-mini">{initials(user?.name)}</span></div></div><div className="dashboard-content">{children}</div></section></main>;
 }
 function AuthRequired({ navigate, role }) {
   return <div className="auth-required"><div className="empty-icon"><ShieldAlert size={28} /></div><h2>Sign in to continue</h2><p>This workspace requires an authenticated {role} account.</p><button className="btn btn-primary" onClick={() => navigate('login')}>Go to login <ArrowRight size={16} /></button></div>;
@@ -431,6 +433,10 @@ function ManufacturerPage({ user, token, navigate, notify }) {
   const doRegister = async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
+    if (!appStatus || appStatus.status !== 'APPROVED') {
+      setMeError('Only an approved manufacturer can register a product. Wait for Admin approval and on-chain wallet authorization first.');
+      return;
+    }
     if (!refImageFile) {
       setMeError('Upload a clear manufacturing-time packaging photo.');
       return;
@@ -515,7 +521,7 @@ function ProductTable({ products = [], onRefresh, navigate, token, notify }) {
       setRegenId('');
     }
   };
-  return products.length ? <div className="table-wrap"><table className="data-table"><thead><tr><th>Product</th><th>Category</th><th>Batch / Serial</th><th>Registered</th><th>Status</th><th>QR & Details</th></tr></thead><tbody>{products.map(p => { const pid = p.productId || p.product_id; return <tr key={p.id || pid}><td><div className="product-cell">{p.referenceImageCID && p.status === 'REGISTERED' && pid ? <img key={pid} src={`${API_ORIGIN}/api/products/${encodeURIComponent(pid)}/image`} alt={`${p.name || pid} saved reference`} title={`Saved reference image (CID ${p.referenceImageCID})`} style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e2e8f0', flexShrink: 0 }} onError={e => { e.currentTarget.style.visibility = 'hidden'; }} /> : <span className="product-cell-icon"><Package size={18} /></span>}<div><strong>{p.name || p.product_name}</strong><small>{pid}</small></div></div></td><td>{categoryLabels[p.category] || p.category || '—'}</td><td><span className="mono">{p.batchNumber || p.batch_number || '—'}</span><small className="table-subline">{p.unitSerial || 'Unit serial not provided'}</small></td><td>{formatDate(p.createdAt || p.created_at)}</td><td><StatusBadge status={p.status || 'REGISTERED'} /></td><td><div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>{p.qrUrl ? <a className="qr-link" href={`${API_ORIGIN}${p.qrUrl}`} target="_blank" rel="noreferrer"><QrCode size={16} /> Open QR</a> : <span className="muted-text">—</span>}{token && pid && <button type="button" className="text-button" disabled={regenId === pid} onClick={() => handleRegenQr(pid)} title="Regenerate QR image using current FRONTEND_PUBLIC_URL"><RefreshCw size={13} className={regenId === pid ? 'spin' : ''} /> {regenId === pid ? 'Updating...' : 'Regenerate QR'}</button>}{pid && navigate && <button type="button" className="text-button" onClick={() => navigate('verify', pid)}>Product page <ArrowRight size={14} /></button>}</div></td></tr>; })}</tbody></table></div> : <div className="empty-state"><div className="empty-icon"><Package size={27} /></div><h3>No products registered yet</h3><p>After an approved wallet successfully registers a product on-chain, it will appear here.</p>{onRefresh && <button className="btn btn-outline" onClick={onRefresh}><RefreshCw size={15} /> Refresh products</button>}</div>;
+  return products.length ? <div className="table-wrap"><table className="data-table"><thead><tr><th>Product</th><th>Category</th><th>Batch / Serial</th><th>Registered</th><th>Status</th><th>QR & Details</th></tr></thead><tbody>{products.map(p => { const pid = p.productId || p.product_id; return <tr key={p.id || pid}><td><div className="product-cell">{p.referenceImageCID && p.status === 'REGISTERED' && pid ? <img key={pid} src={resolveAssetUrl(p.referenceImageUrl || `/api/products/${encodeURIComponent(pid)}/image`)} alt={`${p.name || pid} saved reference`} title={`Saved reference image (CID ${p.referenceImageCID})`} style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e2e8f0', flexShrink: 0 }} onError={e => { e.currentTarget.style.visibility = 'hidden'; }} /> : <span className="product-cell-icon"><Package size={18} /></span>}<div><strong>{p.name || p.product_name}</strong><small>{pid}</small></div></div></td><td>{categoryLabels[p.category] || p.category || '—'}</td><td><span className="mono">{p.batchNumber || p.batch_number || '—'}</span><small className="table-subline">{p.unitSerial || 'Unit serial not provided'}</small></td><td>{formatDate(p.createdAt || p.created_at)}</td><td><StatusBadge status={p.status || 'REGISTERED'} /></td><td><div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>{p.qrUrl ? <a className="qr-link" href={resolveAssetUrl(p.qrUrl)} target="_blank" rel="noreferrer"><QrCode size={16} /> Open QR</a> : <span className="muted-text">—</span>}{token && pid && <button type="button" className="text-button" disabled={regenId === pid} onClick={() => handleRegenQr(pid)} title="Regenerate QR image using current FRONTEND_PUBLIC_URL"><RefreshCw size={13} className={regenId === pid ? 'spin' : ''} /> {regenId === pid ? 'Updating...' : 'Regenerate QR'}</button>}{pid && navigate && <button type="button" className="text-button" onClick={() => navigate('verify', pid)}>Product page <ArrowRight size={14} /></button>}</div></td></tr>; })}</tbody></table></div> : <div className="empty-state"><div className="empty-icon"><Package size={27} /></div><h3>No products registered yet</h3><p>After an approved wallet successfully registers a product on-chain, it will appear here.</p>{onRefresh && <button className="btn btn-outline" onClick={onRefresh}><RefreshCw size={15} /> Refresh products</button>}</div>;
 }
 
 function CustomerPage({ user, navigate, notify }) {

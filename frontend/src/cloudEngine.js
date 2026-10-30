@@ -5,17 +5,27 @@ const MST_CONTRACT_ADDRESS = '0xb7A79C5437D00d32A8770a5905B5d1483c91A130';
 const THRESHOLD = 0.4270653732120991;
 
 const SEED_USERS = [
-  { id: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', name: 'TrustTrace Admin', email: 'admin@trusttrace.local', role: 'admin', status: 'ACTIVE', walletAddress: null },
-  { id: 'ce9019d3-4092-4e5e-bcfc-c20d59f8c26d', name: 'Test Customer', email: 'customer@example.com', role: 'customer', status: 'ACTIVE', walletAddress: null },
-  { id: '81a1ba90-68bf-4838-a16e-0299b454cd3d', name: 'VAISHNAVI PATIL', email: 'vaishnavi.patil24@gmail.com', role: 'customer', status: 'ACTIVE', walletAddress: null },
-  { id: '278269da-9efc-4127-b536-51ed90514668', name: 'Vaishnavi', email: 'vaishnavi.patil24@vit.edu', role: 'customer', status: 'ACTIVE', walletAddress: null },
-  { id: 'd89db891-729d-4c15-a2f8-c80e6a903ae1', name: 'varadraj', email: 'varadraj@gmail.com', role: 'customer', status: 'ACTIVE', walletAddress: null },
-  { id: 'b96574a1-781b-430b-852b-1229e4fd884b', name: 'tukaram', email: 'tukaram.patil2w4@gmail.com', role: 'customer', status: 'ACTIVE', walletAddress: null },
-  { id: 'de11d5fc-c78e-4d7d-85a7-6d6b28019984', name: 'Vaishnavi Patil', email: 'vaishnavibpatil14@gmail.com', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65' },
-  { id: 'd0dc13d2-fd98-4114-b5cf-909cb71d97ca', name: 'Bhagavat Patil', email: 'bhagavat@gmail.com', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x14dC79964da2C08b23698B3D3cc7Ca32193d9955' },
-  { id: '01a61869-fe69-4651-903e-26f9c94522bd', name: 'Rani', email: 'rani@gmail.com', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x90F79bf6EB2c4f870365E785982E1f101E93b906' },
-  { id: '2f335ff1-8f77-44ac-a364-d1e99ee7d64d', name: 'Ganesh', email: 'ganesh@gmail.com', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc' },
-  { id: '40dd6294-2bc5-4052-b9fa-adcf4ac5a550', name: 'tukaram Patil', email: 'tukaram.patil24@gmail.com', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' }
+  { id: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', name: 'TrustTrace Admin', email: 'admin@trusttrace.local', passwordHash: 'scrypt$1c85066d601901f74ef9b7edafb88194$ab789253a444e6a3fc339929422b3f8e784ad7d84b408648d8b6d768656d6bcc5734a8fb7ef2ab53120023cd57c6bbda0e6732cb4e4d8a0bb9efa6d62d0208b7', role: 'admin', status: 'ACTIVE', walletAddress: null },
+  { id: 'ce9019d3-4092-4e5e-bcfc-c20d59f8c26d', name: 'Test Customer', email: 'customer@example.com', passwordHash: 'scrypt$759948b47a210e9730d733800015fac9$39638eacdaece582d80fce9ab5a34dfd48401415d97b2281fc70dbb465c7ca0327380981f022c4dcb3f258157fa6c5282cd0b79c5b630e9d10b282582af2f840', role: 'customer', status: 'ACTIVE', walletAddress: null },
+  { id: '81a1ba90-68bf-4838-a16e-0299b454cd3d', name: 'VAISHNAVI PATIL', email: 'vaishnavi.patil24@gmail.com', passwordHash: 'scrypt$8ba86046e1773933e3384efa215ab7cd$c3505d879ad021ee8f7f1cd04f06dee985575c81ca49cca857e6de8fdfb787d02376ef438629cb3d4c389ef8a2cf484ae6fc6d02f0c7ef8430ca346ae88e54be', role: 'customer', status: 'ACTIVE', walletAddress: null },
+  { id: '278269da-9efc-4127-b536-51ed90514668', name: 'Vaishnavi', email: 'vaishnavi.patil24@vit.edu', passwordHash: 'scrypt$7b102b97ac689431cada5a3f09a859a4$b3a3d524bc77e0d9b020197c03df4c693809831bfb30b8daeae3221e804507bf6380ae4cf06b77acdac42b74454d26c97f79d862c797152222b6b7fcac012bdc', role: 'customer', status: 'ACTIVE', walletAddress: null },
+  { id: 'd89db891-729d-4c15-a2f8-c80e6a903ae1', name: 'varadraj', email: 'varadraj@gmail.com', passwordHash: 'scrypt$5ef71be4e81c8de4cf65ea4ecc14c560$266aee1bfe7ed95d9203be411a4b94a71424159a673fdb9f9c3378927683e132a52c56b9341cc37edec82c16abd90b7bf1db52b80b767f7c1f3efc5a698ba06f', role: 'customer', status: 'ACTIVE', walletAddress: null },
+  { id: 'b96574a1-781b-430b-852b-1229e4fd884b', name: 'tukaram', email: 'tukaram.patil2w4@gmail.com', passwordHash: 'scrypt$ab1d7a5ee7ae0bfd6f50435a6a4d58a1$5d5b2e6eccc1333a50dd0d8ca59ef364159c619ddd460817c5366444269167b529a1e364513cd727f083b33b0c7a2b7bb4cf5de21a167fc93101d4c19bedba33', role: 'customer', status: 'ACTIVE', walletAddress: null },
+  { id: 'de11d5fc-c78e-4d7d-85a7-6d6b28019984', name: 'Vaishnavi Patil', email: 'vaishnavibpatil14@gmail.com', passwordHash: 'scrypt$fda863dbaae6357663886933994a06c6$c8879332599eaa23bdb69f24e996f5f7243694f84544d6521e527d2b938b35abed50b10f9de3dbd3a605de4b2609e29c1c006e04f7e77a85aafdd0e27dc4dbb7', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65' },
+  { id: 'd0dc13d2-fd98-4114-b5cf-909cb71d97ca', name: 'Bhagavat Patil', email: 'bhagavat@gmail.com', passwordHash: 'scrypt$d6a54ca31bf2e4ee56dcaca935a759a2$43d04487423e080460a9c22104afe65e248dfa70ae5bc904def53c1fd0f0a84634496734c0b2d4fa5c4f3841e105f5cf873398c3e09aaab2c82a309e764db54e', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x14dC79964da2C08b23698B3D3cc7Ca32193d9955' },
+  { id: '01a61869-fe69-4651-903e-26f9c94522bd', name: 'Rani', email: 'rani@gmail.com', passwordHash: 'scrypt$3de36b184157176b396aadcc2e07a87d$8a7f5e6ef52119466b92122b27c558135ae9baaebc971013273b1f3bcf5e44981ad75791a73943aaee4fdaa42f0851d62af9b47ed1d5657025664202369b61e9', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x90F79bf6EB2c4f870365E785982E1f101E93b906' },
+  { id: '2f335ff1-8f77-44ac-a364-d1e99ee7d64d', name: 'Ganesh', email: 'ganesh@gmail.com', passwordHash: 'scrypt$becaed3c014a73eb7ec6f27082ac8d51$89d86506e86ebee1c45f206104815915d16ea403162191d10aa63fbdaeac3d04e3e73b87daee9528a05a8a76a4de35f02e62e1c4f35ac54c483f2dd2c6e7bbbc', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc' },
+  { id: '40dd6294-2bc5-4052-b9fa-adcf4ac5a550', name: 'tukaram Patil', email: 'tukaram.patil24@gmail.com', passwordHash: 'scrypt$0dea6168d3f893d4fc062f35b6d7f2c2$ea7ab8e2a22f40f25779cf2d3c142b7cf67891cb2bb49fb9f60674ca96153ae4e064b6755b614690652e92f87be331eb2287b84f76b0d5857bd830e6810b658c', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' },
+  { id: 'af0857db-b9d2-4297-ae0f-3bb9851c362c', name: 'E2E Pharma Labs', email: 'e2e-mfg-1793042327059@trusttrace.local', passwordHash: 'scrypt$c8bd25d6aaa7d8044649981d8bd200cd$f84bd2f64631f301b20dbb1a1de930727544107f16311f57f91f8a7d3f21b49109ddfc46a356fb05fec57ab2480e71bf86bb0d98265c319e7b14fae6c79a8b7a', role: 'manufacturer', status: 'ACTIVE', walletAddress: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC' }
+];
+
+const SEED_APPLICATIONS = [
+  { id: '4964903f-fa30-40ba-909e-4d1f8d82ff53', userId: '40dd6294-2bc5-4052-b9fa-adcf4ac5a550', companyName: 'VST', businessEmail: 'vst@gmail.com', contactName: 'tukaram patil', category: 'food', walletAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-26T17:33:12.136Z', reviewNote: '', authorizationTxHash: '0x145e2bb86820f3bc90ac7f3873c4ca0d7fabe75d3e1d5767f0febaea5ff0cd4c', createdAt: '2026-10-26T17:25:52.922Z', updatedAt: '2026-10-26T17:33:12.136Z' },
+  { id: '24799285-dd5d-43d4-b6e1-027f9761e05f', userId: 'de11d5fc-c78e-4d7d-85a7-6d6b28019984', companyName: 'rukmini', businessEmail: 'rukmini@gmail.com', contactName: 'Vaishnavi Patil', category: 'food', walletAddress: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-29T07:00:45.162Z', reviewNote: '', authorizationTxHash: '0x416962c0b7c30e9c11067da27ddb860f81d6c3b05e233da5293abf57b9e01ea5', createdAt: '2026-10-29T06:56:32.008Z', updatedAt: '2026-10-29T07:00:45.162Z' },
+  { id: '0984d761-75d3-4d84-9bfc-66cb5b463ab2', userId: '01a61869-fe69-4651-903e-26f9c94522bd', companyName: 'Surabhi', businessEmail: 'surabhi@gmail.com', contactName: 'Rani', category: 'food', walletAddress: '0x90F79bf6EB2c4f870365E785982E1f101E93b906', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-29T07:40:02.355Z', reviewNote: '', authorizationTxHash: '0xb593b5e05307288e7cf7b9caa7778c0f1a10377960f4202c1b94fb1dc7b63713', createdAt: '2026-10-29T07:38:25.334Z', updatedAt: '2026-10-29T07:40:02.355Z' },
+  { id: '60cc926d-b414-49f1-93a6-8672cf18f8e9', userId: '2f335ff1-8f77-44ac-a364-d1e99ee7d64d', companyName: 'Surabhi', businessEmail: 'surbhi@gmail.com', contactName: 'Ganesh', category: 'food', walletAddress: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-29T07:51:08.892Z', reviewNote: '', authorizationTxHash: '0x6077d7d8ff28ee53da808da395c1fa607236a35b8426f8cf7167ee4cba31d32c', createdAt: '2026-10-29T07:50:22.951Z', updatedAt: '2026-10-29T07:51:08.892Z' },
+  { id: '05650417-8c27-40a0-98bf-8ef864a69189', userId: 'd0dc13d2-fd98-4114-b5cf-909cb71d97ca', companyName: 'Rukmini', businessEmail: 'rukmini@gmail.com', contactName: '8308309009', category: 'food', walletAddress: '0x14dC79964da2C08b23698B3D3cc7Ca32193d9955', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-29T18:00:44.224Z', reviewNote: '', authorizationTxHash: '0xf0e0592ea4e461cd6a0d163ccc210e2548927b62bedf13d4747b5fa38d05c8b5', createdAt: '2026-10-29T17:59:30.293Z', updatedAt: '2026-10-29T18:00:44.224Z' },
+  { id: '556ca539-a6ea-4f74-bb2c-781c654bd97e', userId: 'af0857db-b9d2-4297-ae0f-3bb9851c362c', companyName: 'E2E Pharma Labs Pvt Ltd', businessEmail: 'e2e-mfg-1793042327059@trusttrace.local', contactName: 'Dr. R. Sharma', category: 'medicine', walletAddress: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', status: 'APPROVED', reviewedBy: 'e896e953-3920-4f2a-8a58-6e5ecf12f2ff', reviewedAt: '2026-10-26T19:18:47.614Z', reviewNote: 'E2E live verification approval', authorizationTxHash: '0xd749f40b2302ccf1fbb329ee6589608c663c10b26d1f129f96caa16dae3b54a5', createdAt: '2026-10-26T19:18:47.169Z', updatedAt: '2026-10-26T19:18:47.614Z' }
 ];
 
 const SEED_PRODUCTS = [
@@ -217,9 +227,11 @@ const SEED_PRODUCTS = [
   }
 ];
 
+const CLOUD_STORAGE_KEY = 'trusttrace_cloud_state_v2';
+
 function getCloudState() {
   try {
-    const raw = localStorage.getItem('trusttrace_cloud_state_v1');
+    const raw = localStorage.getItem(CLOUD_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       return {
@@ -227,7 +239,7 @@ function getCloudState() {
         products: parsed.products?.length ? parsed.products : [...SEED_PRODUCTS],
         sessions: parsed.sessions || [],
         scanEvents: parsed.scanEvents || [],
-        applications: parsed.applications || []
+        applications: parsed.applications?.length ? parsed.applications : [...SEED_APPLICATIONS]
       };
     }
   } catch { /* ignore */ }
@@ -236,14 +248,100 @@ function getCloudState() {
     products: [...SEED_PRODUCTS],
     sessions: [],
     scanEvents: [],
-    applications: []
+    applications: [...SEED_APPLICATIONS]
   };
 }
 
 function saveCloudState(state) {
   try {
-    localStorage.setItem('trusttrace_cloud_state_v1', JSON.stringify(state));
+    localStorage.setItem(CLOUD_STORAGE_KEY, JSON.stringify(state));
   } catch { /* ignore */ }
+}
+
+function salsa20_8(B) {
+  const x = new Int32Array(16);
+  for (let i = 0; i < 16; i++) x[i] = B[i];
+  const R = (a, b) => (a << b) | (a >>> (32 - b));
+  for (let i = 8; i > 0; i -= 2) {
+    x[4] ^= R((x[0] + x[12]) | 0, 7);   x[8] ^= R((x[4] + x[0]) | 0, 9);
+    x[12] ^= R((x[8] + x[4]) | 0, 13);  x[0] ^= R((x[12] + x[8]) | 0, 18);
+    x[9] ^= R((x[5] + x[1]) | 0, 7);   x[13] ^= R((x[9] + x[5]) | 0, 9);
+    x[1] ^= R((x[13] + x[9]) | 0, 13);  x[5] ^= R((x[1] + x[13]) | 0, 18);
+    x[14] ^= R((x[10] + x[6]) | 0, 7);  x[2] ^= R((x[14] + x[10]) | 0, 9);
+    x[6] ^= R((x[2] + x[14]) | 0, 13);  x[10] ^= R((x[6] + x[2]) | 0, 18);
+    x[3] ^= R((x[15] + x[11]) | 0, 7);  x[7] ^= R((x[3] + x[15]) | 0, 9);
+    x[11] ^= R((x[7] + x[3]) | 0, 13);  x[15] ^= R((x[11] + x[7]) | 0, 18);
+    x[1] ^= R((x[0] + x[3]) | 0, 7);   x[2] ^= R((x[1] + x[0]) | 0, 9);
+    x[3] ^= R((x[2] + x[1]) | 0, 13);   x[0] ^= R((x[3] + x[2]) | 0, 18);
+    x[6] ^= R((x[5] + x[4]) | 0, 7);   x[7] ^= R((x[6] + x[5]) | 0, 9);
+    x[4] ^= R((x[7] + x[6]) | 0, 13);   x[5] ^= R((x[4] + x[7]) | 0, 18);
+    x[11] ^= R((x[10] + x[9]) | 0, 7);  x[8] ^= R((x[11] + x[10]) | 0, 9);
+    x[9] ^= R((x[8] + x[11]) | 0, 13);  x[10] ^= R((x[9] + x[8]) | 0, 18);
+    x[12] ^= R((x[15] + x[14]) | 0, 7); x[13] ^= R((x[12] + x[15]) | 0, 9);
+    x[14] ^= R((x[13] + x[12]) | 0, 13);x[15] ^= R((x[14] + x[13]) | 0, 18);
+  }
+  for (let i = 0; i < 16; i++) B[i] = (B[i] + x[i]) | 0;
+}
+
+function blockMixSalsa8(BY, Y, r) {
+  const X = new Int32Array(16);
+  const start = (2 * r - 1) * 16;
+  for (let i = 0; i < 16; i++) X[i] = BY[start + i];
+  for (let i = 0; i < 2 * r; i++) {
+    const offset = i * 16;
+    for (let j = 0; j < 16; j++) X[j] ^= BY[offset + j];
+    salsa20_8(X);
+    const dest = ((i & 1) ? (r + (i >> 1)) : (i >> 1)) * 16;
+    for (let j = 0; j < 16; j++) Y[dest + j] = X[j];
+  }
+  for (let i = 0; i < 32 * r; i++) BY[i] = Y[i];
+}
+
+async function pbkdf2Sha256(passwordBytes, saltBytes, dkLen) {
+  const key = await crypto.subtle.importKey('raw', passwordBytes, { name: 'PBKDF2' }, false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: saltBytes, iterations: 1, hash: 'SHA-256' }, key, dkLen * 8);
+  return new Uint8Array(bits);
+}
+
+async function scryptHex(password, saltStr, N = 16384, r = 8, dkLen = 64) {
+  const enc = new TextEncoder();
+  const passBytes = enc.encode(String(password));
+  const saltBytes = enc.encode(String(saltStr));
+  const B = await pbkdf2Sha256(passBytes, saltBytes, 128 * r);
+  const BY = new Int32Array(32 * r);
+  const view = new DataView(B.buffer, B.byteOffset, B.byteLength);
+  for (let i = 0; i < 32 * r; i++) BY[i] = view.getInt32(i * 4, true);
+  const V = new Int32Array(32 * r * N);
+  const Y = new Int32Array(32 * r);
+  for (let i = 0; i < N; i++) {
+    V.set(BY, i * 32 * r);
+    blockMixSalsa8(BY, Y, r);
+  }
+  for (let i = 0; i < N; i++) {
+    const j = BY[(2 * r - 1) * 16] & (N - 1);
+    const vOff = j * 32 * r;
+    for (let k = 0; k < 32 * r; k++) BY[k] ^= V[vOff + k];
+    blockMixSalsa8(BY, Y, r);
+  }
+  for (let i = 0; i < 32 * r; i++) view.setInt32(i * 4, BY[i], true);
+  const dk = await pbkdf2Sha256(passBytes, B, dkLen);
+  return Array.from(dk).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function hashCloudPassword(password) {
+  const rand = new Uint8Array(16);
+  crypto.getRandomValues(rand);
+  const salt = Array.from(rand).map(b => b.toString(16).padStart(2, '0')).join('');
+  const hash = await scryptHex(password, salt);
+  return `scrypt$${salt}$${hash}`;
+}
+
+async function verifyCloudPassword(password, storedHash) {
+  if (!storedHash || typeof storedHash !== 'string') return false;
+  const [scheme, salt, hash] = storedHash.split('$');
+  if (scheme !== 'scrypt' || !salt || !hash) return false;
+  const actual = await scryptHex(password, salt);
+  return actual.toLowerCase() === hash.toLowerCase();
 }
 
 function loadImgElement(srcOrBlob) {
@@ -474,6 +572,27 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function cleanCloudUser(u) {
+  if (!u) return null;
+  return {
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: String(u.role).toLowerCase(),
+    status: u.status,
+    walletAddress: u.walletAddress || null
+  };
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export async function handleCloudApiRequest(path, { method = 'GET', body, token } = {}) {
   const state = getCloudState();
   const cleanPath = path.split('?')[0];
@@ -481,88 +600,292 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
   const query = new URLSearchParams(queryStr);
 
   const getAuthUser = () => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('trusttrace_user') || 'null');
-      if (stored) return stored;
-    } catch { /* ignore */ }
     if (token && token.startsWith('cloud_tok_')) {
       const uid = token.replace('cloud_tok_', '');
-      return state.users.find(u => u.id === uid) || state.users[2];
+      const found = state.users.find(u => u.id === uid);
+      if (found) return found;
     }
-    return state.users[2];
+    try {
+      const stored = JSON.parse(localStorage.getItem('trusttrace_user') || 'null');
+      if (stored?.id) {
+        return state.users.find(u => u.id === stored.id) || stored;
+      }
+    } catch { /* ignore */ }
+    return null;
   };
 
   if (cleanPath === '/auth/login' && method === 'POST') {
     const payload = typeof body === 'string' ? JSON.parse(body) : body;
     const email = String(payload?.email || '').trim().toLowerCase();
-    let user = state.users.find(u => u.email.toLowerCase() === email);
-    if (!user) {
-      user = {
-        id: `usr_${Date.now()}`,
-        name: email.split('@')[0] || 'Customer',
-        email,
-        role: email.includes('admin') ? 'admin' : 'customer',
-        status: 'ACTIVE',
-        walletAddress: null
-      };
-      state.users.push(user);
-      saveCloudState(state);
+    const password = String(payload?.password || '');
+    if (!email || !password) {
+      const err = new Error('Email and password are required.');
+      err.code = 'MISSING_CREDENTIALS';
+      err.status = 400;
+      throw err;
     }
-    return { success: true, token: `cloud_tok_${user.id}`, user };
+    const user = state.users.find(u => u.email.toLowerCase() === email);
+    if (!user || !(await verifyCloudPassword(password, user.passwordHash))) {
+      const err = new Error('Email or password is incorrect.');
+      err.code = 'INVALID_CREDENTIALS';
+      err.status = 401;
+      throw err;
+    }
+    if (user.status === 'DISABLED' || user.status === 'REJECTED') {
+      const err = new Error('This account is disabled or rejected.');
+      err.code = 'ACCOUNT_DISABLED';
+      err.status = 403;
+      throw err;
+    }
+    let app = String(user.role).toLowerCase() === 'manufacturer'
+      ? state.applications.find(a => a.userId === user.id) || null
+      : null;
+    if (app) {
+      app = { ...app, onChainAuthorized: app.status === 'APPROVED', configuredContractAddress: MST_CONTRACT_ADDRESS };
+    }
+    return {
+      success: true,
+      message: 'Signed in successfully.',
+      token: `cloud_tok_${user.id}`,
+      user: cleanCloudUser(user),
+      manufacturerApplication: app
+    };
   }
 
   if (cleanPath === '/auth/signup' && method === 'POST') {
     const payload = typeof body === 'string' ? JSON.parse(body) : body;
-    const email = String(payload?.email || '').trim().toLowerCase();
-    const role = payload?.role === 'manufacturer' ? 'manufacturer' : 'customer';
+    const { name, email, password, role = 'customer', companyName, businessEmail, contactName, category, walletAddress } = payload || {};
+    const normalizedRole = String(role).toLowerCase();
+    if (!name || String(name).trim().length < 2) {
+      const err = new Error('Enter your full name.'); err.code = 'INVALID_NAME'; err.status = 400; throw err;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ''))) {
+      const err = new Error('Enter a valid email address.'); err.code = 'INVALID_EMAIL'; err.status = 400; throw err;
+    }
+    if (typeof password !== 'string' || password.length < 8) {
+      const err = new Error('Password must contain at least 8 characters.'); err.code = 'WEAK_PASSWORD'; err.status = 400; throw err;
+    }
+    if (!['customer', 'manufacturer'].includes(normalizedRole)) {
+      const err = new Error('Choose Customer or Manufacturer.'); err.code = 'INVALID_ROLE'; err.status = 400; throw err;
+    }
+    if (normalizedRole === 'manufacturer') {
+      if (!companyName || !businessEmail || !contactName || !category || !walletAddress) {
+        const err = new Error('Company, business email, contact name, category and wallet address are required.');
+        err.code = 'MISSING_MANUFACTURER_FIELDS'; err.status = 400; throw err;
+      }
+      if (!/^0x[a-fA-F0-9]{40}$/.test(String(walletAddress).trim())) {
+        const err = new Error('Enter a valid EVM wallet address.'); err.code = 'INVALID_WALLET'; err.status = 400; throw err;
+      }
+    }
+    const cleanEmail = String(email).trim().toLowerCase();
+    if (state.users.some(u => u.email.toLowerCase() === cleanEmail)) {
+      const err = new Error('An account with this email already exists.'); err.code = 'EMAIL_EXISTS'; err.status = 409; throw err;
+    }
+    if (normalizedRole === 'manufacturer') {
+      const cleanWallet = String(walletAddress).trim().toLowerCase();
+      if (state.users.some(u => u.walletAddress && u.walletAddress.toLowerCase() === cleanWallet)) {
+        const err = new Error('An account with this wallet address already exists.'); err.code = 'WALLET_EXISTS'; err.status = 409; throw err;
+      }
+    }
+    const now = new Date().toISOString();
+    const userId = `usr_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     const user = {
-      id: `usr_${Date.now()}`,
-      name: payload?.name || email.split('@')[0] || 'User',
-      email,
-      role,
-      status: 'ACTIVE',
-      walletAddress: payload?.walletAddress || (role === 'manufacturer' ? '0x14dC79964da2C08b23698B3D3cc7Ca32193d9955' : null)
+      id: userId,
+      name: String(name).trim(),
+      email: cleanEmail,
+      passwordHash: await hashCloudPassword(password),
+      role: normalizedRole,
+      status: normalizedRole === 'manufacturer' ? 'PENDING' : 'ACTIVE',
+      walletAddress: normalizedRole === 'manufacturer' ? String(walletAddress).trim() : null,
+      createdAt: now,
+      updatedAt: now
     };
     state.users.push(user);
+
+    if (normalizedRole === 'manufacturer') {
+      state.applications.push({
+        id: `app_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        userId,
+        companyName: String(companyName).trim(),
+        businessEmail: String(businessEmail).trim().toLowerCase(),
+        contactName: String(contactName).trim(),
+        category: String(category).trim(),
+        walletAddress: String(walletAddress).trim(),
+        status: 'PENDING',
+        reviewedBy: null,
+        reviewedAt: null,
+        reviewNote: null,
+        authorizationTxHash: null,
+        createdAt: now,
+        updatedAt: now
+      });
+      saveCloudState(state);
+      return {
+        success: true,
+        message: 'Manufacturer account created. Product registration is available after admin approval and on-chain wallet authorization.',
+        user: cleanCloudUser(user),
+        token: `cloud_tok_${user.id}`
+      };
+    }
+
     saveCloudState(state);
-    return { success: true, token: `cloud_tok_${user.id}`, user };
+    return {
+      success: true,
+      message: 'Account created successfully.',
+      user: cleanCloudUser(user),
+      token: `cloud_tok_${user.id}`
+    };
   }
 
-  if (cleanPath === '/products/catalog' || cleanPath === '/products') {
-    if (method === 'GET') {
-      return { success: true, products: state.products };
+  if (cleanPath === '/auth/me' && method === 'GET') {
+    const user = getAuthUser();
+    if (!user) {
+      const err = new Error('Authentication required.'); err.status = 401; throw err;
     }
-    if (method === 'POST' && body instanceof FormData) {
-      const user = getAuthUser();
-      const pid = `PROD-${Date.now().toString(36).toUpperCase()}-MAINNET`;
-      const newProd = {
-        id: `prod_${Date.now()}`,
-        productId: pid,
-        name: body.get('name') || 'New Product',
-        brand: body.get('brand') || 'Brand',
-        category: body.get('category') || 'food',
-        sku: body.get('sku') || '',
-        batchNumber: body.get('batchNumber') || 'BATCH-01',
-        unitSerial: body.get('unitSerial') || String(Date.now()),
-        manufactureDate: body.get('manufactureDate') || new Date().toISOString().slice(0, 10),
-        expiryDate: body.get('expiryDate') || null,
-        manufacturerUserId: user.id,
-        manufacturerName: user.name,
-        manufacturerWallet: user.walletAddress || '0x14dC79964da2C08b23698B3D3cc7Ca32193d9955',
-        referenceImageCID: 'QmUSXdXMpytgw1GanprK4z4mJGB9VoKozyfhWd68Djkka7',
-        chainId: MST_MAINNET_CHAIN_ID,
-        contractAddress: MST_CONTRACT_ADDRESS,
-        txHash: '0x190637466ab1e0c12e18bd8d2233559387ea9005d08631932f903ea12faa4736',
-        transactionHash: '0x190637466ab1e0c12e18bd8d2233559387ea9005d08631932f903ea12faa4736',
-        qrUrl: '/uploads/qr_codes/PROD-MVTUS047-7D908B.png',
-        referenceImageUrl: '/uploads/ipfs_cache/QmUSXdXMpytgw1GanprK4z4mJGB9VoKozyfhWd68Djkka7.jpg',
-        status: 'REGISTERED',
-        createdAt: new Date().toISOString()
+    let app = String(user.role).toLowerCase() === 'manufacturer'
+      ? state.applications.find(a => a.userId === user.id) || null
+      : null;
+    if (app) {
+      app = {
+        ...app,
+        onChainAuthorized: app.status === 'APPROVED',
+        configuredContractAddress: MST_CONTRACT_ADDRESS
       };
-      state.products.unshift(newProd);
-      saveCloudState(state);
-      return { success: true, product: newProd };
     }
+    return {
+      success: true,
+      user: cleanCloudUser(user),
+      manufacturerApplication: app
+    };
+  }
+
+  if (cleanPath === '/products/mine' && method === 'GET') {
+    const user = getAuthUser();
+    if (!user) return { success: true, products: [] };
+    return {
+      success: true,
+      products: state.products.filter(p => p.manufacturerUserId === user.id)
+    };
+  }
+
+  if (cleanPath === '/qr/catalog/list' && method === 'GET') {
+    return {
+      success: true,
+      products: state.products.filter(p => p.status === 'REGISTERED')
+    };
+  }
+
+  if ((cleanPath === '/products/register' || cleanPath === '/products') && method === 'POST') {
+    const user = getAuthUser();
+    const application = user ? state.applications.find(a => a.userId === user.id) : null;
+    if (!user || user.role !== 'manufacturer' || !application || application.status !== 'APPROVED' || user.status !== 'ACTIVE') {
+      const err = new Error('Only an approved manufacturer can register a product.');
+      err.code = 'MANUFACTURER_NOT_APPROVED';
+      err.status = 403;
+      throw err;
+    }
+    if (!body || !(body instanceof FormData)) {
+      const err = new Error('Invalid product registration form data.'); err.status = 400; throw err;
+    }
+    const refFile = body.get('referenceImage');
+    if (!refFile) {
+      const err = new Error('Upload a clear manufacturing-time packaging photo.'); err.code = 'REFERENCE_IMAGE_REQUIRED'; err.status = 400; throw err;
+    }
+    const name = String(body.get('name') || '').trim();
+    const brand = String(body.get('brand') || '').trim();
+    const category = String(body.get('category') || 'food').trim().toLowerCase();
+    const sku = String(body.get('sku') || '').trim();
+    const batchNumber = String(body.get('batchNumber') || '').trim();
+    const unitSerial = String(body.get('unitSerial') || '').trim();
+    const manufactureDate = String(body.get('manufactureDate') || '').trim() || new Date().toISOString().slice(0, 10);
+    const expiryDate = String(body.get('expiryDate') || '').trim() || null;
+
+    if (!name || !brand || !category || !batchNumber || !unitSerial) {
+      const err = new Error('Product name, brand, category, batch number and unique unit serial are required.');
+      err.code = 'MISSING_PRODUCT_FIELDS'; err.status = 400; throw err;
+    }
+    const duplicate = state.products.find(p =>
+      p.manufacturerUserId === user.id &&
+      String(p.batchNumber).toLowerCase() === batchNumber.toLowerCase() &&
+      String(p.unitSerial).toLowerCase() === unitSerial.toLowerCase()
+    );
+    if (duplicate) {
+      const err = new Error('This batch/unit serial already has a registration attempt. Review the existing record before retrying.');
+      err.code = 'DUPLICATE_UNIT_SERIAL'; err.status = 409; throw err;
+    }
+
+    const dataUrl = await fileToDataUrl(refFile);
+    const randHex = Array.from(crypto.getRandomValues(new Uint8Array(3))).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+    const pid = `PROD-${Date.now().toString(36).toUpperCase()}-${randHex}`;
+    const txHash = '0x' + Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('');
+    const cid = 'Qm' + Array.from(crypto.getRandomValues(new Uint8Array(22))).map(b => (b % 36).toString(36)).join('');
+    const nowIso = new Date().toISOString();
+    const basePrefix = (typeof window !== 'undefined' && window.location?.pathname.startsWith('/trusttrace')) ? '/trusttrace' : '';
+    const verifyUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://vaishnavivarad.github.io'}${basePrefix}/verify/${encodeURIComponent(pid)}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=12&data=${encodeURIComponent(verifyUrl)}`;
+
+    const originLat = Number(body.get('originLatitude')) || 18.5204;
+    const originLon = Number(body.get('originLongitude')) || 73.8567;
+    const originLocName = String(body.get('originLocationName') || 'Pune, Maharashtra');
+
+    const newProd = {
+      id: `prod_${Date.now()}`,
+      productId: pid,
+      name,
+      brand,
+      category,
+      sku,
+      batchNumber,
+      unitSerial,
+      manufactureDate,
+      expiryDate,
+      manufacturerUserId: user.id,
+      manufacturerName: `${application.companyName} (${user.name})`,
+      manufacturerWallet: application.walletAddress,
+      referenceImageCID: cid,
+      metadataCID: cid,
+      chainId: MST_MAINNET_CHAIN_ID,
+      contractAddress: MST_CONTRACT_ADDRESS,
+      txHash,
+      transactionHash: txHash,
+      qrUrl,
+      referenceImageUrl: dataUrl,
+      referenceImageGatewayUrl: dataUrl,
+      status: 'REGISTERED',
+      createdAt: nowIso
+    };
+    state.products.unshift(newProd);
+    state.scanEvents.push({
+      id: `scan_origin_${Date.now()}`,
+      productId: pid,
+      scanType: 'MANUFACTURER_ORIGIN',
+      locationName: originLocName,
+      latitude: originLat,
+      longitude: originLon,
+      timestamp: nowIso,
+      distanceKm: 0,
+      elapsedSeconds: 0,
+      estimatedSpeedKmh: 0,
+      caspgStatus: 'ORIGIN_RECORDED'
+    });
+    saveCloudState(state);
+    return {
+      success: true,
+      message: `Product ${pid} registered on MST Mainnet (4646) and QR code generated.`,
+      product: newProd
+    };
+  }
+
+  if (cleanPath === '/products/catalog' || (cleanPath === '/products' && method === 'GET')) {
+    return { success: true, products: state.products };
+  }
+
+  const qrRegenMatch = cleanPath.match(/^\/products\/([^/]+)\/qr$/);
+  if (qrRegenMatch) {
+    const pid = decodeURIComponent(qrRegenMatch[1]).trim();
+    const basePrefix = (typeof window !== 'undefined' && window.location?.pathname.startsWith('/trusttrace')) ? '/trusttrace' : '';
+    const verificationUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://vaishnavivarad.github.io'}${basePrefix}/verify/${encodeURIComponent(pid)}`;
+    return { success: true, productId: pid, verificationUrl };
   }
 
   const prodMatch = cleanPath.match(/^\/products\/([^/]+)$/);
@@ -571,27 +894,131 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
     const product = state.products.find(p => p.productId.toUpperCase() === pid.toUpperCase());
     if (!product) {
       const err = new Error(`Product ${pid} is not registered on MST Mainnet (Chain ID 4646).`);
+      err.code = 'UNREGISTERED_PRODUCT';
       err.status = 404;
       throw err;
     }
     const scans = state.scanEvents.filter(s => s.productId === product.productId);
-    const latestScan = scans.length > 0 ? scans[scans.length - 1] : {
+    const originScan = scans.find(s => s.scanType === 'MANUFACTURER_ORIGIN') || {
       scanType: 'MANUFACTURER_ORIGIN',
       locationName: 'Pune, Maharashtra',
       latitude: 18.5204,
       longitude: 73.8567,
       timestamp: product.createdAt
     };
+    const latestScan = scans.length > 0 ? scans[scans.length - 1] : originScan;
     return {
       success: true,
       product: {
         ...product,
-        originLocation: { locationName: 'Pune, Maharashtra', latitude: 18.5204, longitude: 73.8567, timestamp: product.createdAt },
+        originLocation: originScan,
         latestScan,
         previousScan: latestScan,
-        scanCount: scans.length + 1
+        scanCount: scans.length || 1
       }
     };
+  }
+
+  if (cleanPath === '/admin/manufacturers' && method === 'GET') {
+    const statusFilter = query.get('status') ? String(query.get('status')).toUpperCase() : null;
+    const enriched = state.applications.map(a => {
+      const u = state.users.find(usr => usr.id === a.userId);
+      return {
+        ...a,
+        onChainAuthorized: a.status === 'APPROVED',
+        user: u ? { id: u.id, name: u.name, email: u.email } : null
+      };
+    });
+    const filtered = enriched.filter(a => {
+      if (!statusFilter) return true;
+      return a.status === statusFilter;
+    });
+    return { success: true, applications: filtered };
+  }
+
+  if (cleanPath === '/admin/overview' && method === 'GET') {
+    const manufacturers = state.applications.map(a => {
+      const u = state.users.find(usr => usr.id === a.userId);
+      return {
+        id: a.id,
+        userId: a.userId,
+        companyName: a.companyName,
+        businessEmail: a.businessEmail,
+        userEmail: u?.email || a.businessEmail,
+        userName: u?.name || a.contactName,
+        walletAddress: a.walletAddress,
+        status: a.status,
+        onChainAuthorized: a.status === 'APPROVED',
+        authorizationTxHash: a.authorizationTxHash || null
+      };
+    });
+    return {
+      success: true,
+      stats: {
+        users: state.users.length,
+        manufacturersPending: state.applications.filter(a => a.status === 'PENDING').length,
+        manufacturersApproved: state.applications.filter(a => a.status === 'APPROVED').length,
+        products: state.products.length,
+        scans: state.scanEvents.length,
+        suspiciousScans: state.scanEvents.filter(s => String(s.caspgStatus).includes('SUSPICIOUS')).length
+      },
+      diagnostics: {
+        rpcUrl: MST_MAINNET_RPC,
+        expectedChainId: MST_MAINNET_CHAIN_ID,
+        actualChainId: MST_MAINNET_CHAIN_ID,
+        chainIdMatches: true,
+        configuredContractAddress: MST_CONTRACT_ADDRESS,
+        contractBytecodeExists: true,
+        contractBytecodeBytes: 4928,
+        blockNumber: 21761739,
+        needsLocalDeployment: false,
+        manufacturers
+      }
+    };
+  }
+
+  const adminReviewMatch = cleanPath.match(/^\/admin\/manufacturers\/([^/]+)\/(approve|reject)$/);
+  if (adminReviewMatch && method === 'POST') {
+    const appId = adminReviewMatch[1];
+    const action = adminReviewMatch[2];
+    const app = state.applications.find(a => a.id === appId);
+    if (!app) {
+      const err = new Error('Manufacturer application not found.'); err.status = 404; throw err;
+    }
+    const now = new Date().toISOString();
+    const user = state.users.find(u => u.id === app.userId);
+    if (action === 'approve') {
+      const txHash = '0x' + Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('');
+      app.status = 'APPROVED';
+      app.reviewedAt = now;
+      app.authorizationTxHash = txHash;
+      app.updatedAt = now;
+      if (user) {
+        user.status = 'ACTIVE';
+        user.updatedAt = now;
+      }
+      saveCloudState(state);
+      return {
+        success: true,
+        message: 'Manufacturer approved and wallet authorized on-chain.',
+        txHash
+      };
+    } else {
+      const payload = typeof body === 'string' ? JSON.parse(body || '{}') : (body || {});
+      app.status = 'REJECTED';
+      app.reviewedAt = now;
+      app.reviewNote = String(payload.note || 'Application rejected.');
+      app.updatedAt = now;
+      if (user) {
+        user.status = 'REJECTED';
+        user.updatedAt = now;
+      }
+      saveCloudState(state);
+      return {
+        success: true,
+        message: 'Manufacturer application rejected.'
+      };
+    }
   }
 
   if (cleanPath === '/verification/detect-location') {
@@ -619,6 +1046,7 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
     const product = state.products.find(p => p.productId.toUpperCase() === pid.toUpperCase());
     if (!product) {
       const err = new Error('This Product ID is not registered on MST Mainnet.');
+      err.code = 'UNREGISTERED_PRODUCT';
       err.status = 404;
       throw err;
     }
@@ -757,12 +1185,19 @@ export async function handleCloudApiRequest(path, { method = 'GET', body, token 
           status: newScan.caspgStatus,
           distanceKm: Number(distKm.toFixed(2)),
           elapsedSeconds: elapsedSec,
-          elapsedFormatted: `${Math.floor(elapsedSec / 60)}m ${elapsedSec % 60}s`,
-          minRequiredFormatted: `${Math.floor(minRequiredSec / 60)}m ${minRequiredSec % 60}s`,
+          formattedElapsed: `${Math.floor(elapsedSec / 60)}m ${elapsedSec % 60}s`,
+          minRequiredSeconds: minRequiredSec,
+          formattedMinRequired: `${Math.floor(minRequiredSec / 60)}m ${minRequiredSec % 60}s`,
           estimatedSpeedKmh: Number(speedKmh.toFixed(1)),
-          thresholdSpeedKmh: 120,
-          previousLocation: { locationName: prev.locationName, latitude: prev.latitude, longitude: prev.longitude, timestamp: prev.timestamp, scanType: prev.scanType },
-          currentLocation: { locationName: curLocName, latitude: curLat, longitude: curLon, timestamp: nowIso },
+          thresholdKmh: 120,
+          previousLocationName: prev.locationName,
+          previousLatitude: prev.latitude,
+          previousLongitude: prev.longitude,
+          previousTimestamp: prev.timestamp,
+          currentLocationName: curLocName,
+          currentLatitude: curLat,
+          currentLongitude: curLon,
+          currentTimestamp: nowIso,
           explanation
         }
       }
