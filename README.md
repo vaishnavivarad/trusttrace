@@ -1,212 +1,307 @@
-# TrustTrace — Three-Layer Product Authenticity Verification
+# TrustTrace — Blockchain-Based Product Provenance & AI-Powered Counterfeit Detection
 
-TrustTrace is a full-stack prototype for checking whether a product's QR-linked record is registered, whether the scanned packaging image matches the manufacturer's reference image, and whether the time/location pattern between scans suggests physically implausible movement.
+> **Official Submission for MST Blockchain BUILDATHON 2026**  
+> **Live Deployed Web Application:** [https://vaishnavivarad.github.io/trusttrace/](https://vaishnavivarad.github.io/trusttrace/)  
+> **GitHub Source Repository:** [https://github.com/vaishnavivarad/trusttrace](https://github.com/vaishnavivarad/trusttrace)
 
-## The three gates
+---
 
-1. **Gate 1 — Blockchain:** Read the Product ID from the deployed `ProductAuth` smart contract. If the ID is not registered on a successfully queried chain, stop and report `UNREGISTERED_PRODUCT`. If the chain cannot be reached, report `BLOCKCHAIN_UNAVAILABLE`; never call a network error counterfeit.
-2. **Gate 2 — Siamese CNN:** Compare the manufacturer's reference packaging photo with the user's current photo using a shared-weight Siamese MobileNetV2 model. A validated mismatch stops the flow; a good match proceeds to Gate 3; poor image quality asks the user to retake the photo. If model weights or a validated threshold are missing, the service returns `MODEL_NOT_CONFIGURED` rather than inventing a match.
-3. **Gate 3 — CASPG:** Ask for browser location permission only when Gate 3 starts. The server records the scan-arrival time, applies Haversine distance and a configurable maximum-speed heuristic, and stores detailed scan evidence off-chain. A minimal audit event/hash is written to the blockchain by the configured owner/relayer. GPS denial or poor accuracy is reported as unavailable/partial, not PASS.
+## Table of Contents
+1. [Project Overview](#1-project-overview)
+2. [Problem Statement](#2-problem-statement)
+3. [Proposed 3-Layer Solution](#3-proposed-3-layer-solution)
+4. [MST Blockchain Implementation & Deployed Smart Contracts](#4-mst-blockchain-implementation--deployed-smart-contracts)
+5. [Smart Contract Functionality](#5-smart-contract-functionality)
+6. [System Architecture & Workflow](#6-system-architecture--workflow)
+7. [Key Features Implemented](#7-key-features-implemented)
+8. [Technology Stack](#8-technology-stack)
+9. [Repository Structure](#9-repository-structure)
+10. [Step-by-Step Local Setup & Execution Guide](#10-step-by-step-local-setup--execution-guide)
+11. [Step-by-Step Demo & Evaluation Walkthrough](#11-step-by-step-demo--evaluation-walkthrough)
+12. [Third-Party Libraries, Credits & Licenses](#12-third-party-libraries-credits--licenses)
+13. [Originality Declaration & Team Details](#13-originality-declaration--team-details)
 
-The final message is **“No suspicious signals detected”**, never “100% genuine”. Packaging-image similarity and plausible travel do not prove authenticity.
+---
 
-## Repository layout
+## 1. Project Overview
 
-- `frontend/` — React + Vite frontend, Tailwind CSS v4 integration, responsive TrustTrace pages and dashboards.
-- `backend/` — Node.js + Express API, authentication, manufacturer approval, product registration, QR service, IPFS integration, Gate 1/Gate 2/Gate 3 orchestration and application storage.
-- `trusttrace-blockchain/` — Existing Hardhat 3 project, Solidity `ProductAuth.sol`, tests and Ignition deployment module.
-- `ml-service/` — Python FastAPI Siamese CNN inference API, MobileNetV2 training script, dataset metadata templates and dataset validation/pair/split scripts.
+**TrustTrace** is an original full-stack product provenance and counterfeit-detection platform that combines **MST Blockchain smart contracts**, **Pinata IPFS decentralized storage**, **PostgreSQL (Prisma ORM)**, **Siamese CNN deep learning**, and **geolocation travel-speed analysis**.
 
-## Requirements
+It enables brand manufacturers to register genuine product units on the **MST Blockchain**, administrators to govern trusted manufacturer onboarding, and everyday customers to verify whether a physical product is genuine or suspicious from any smartphone or desktop browser before purchasing.
 
-- Node.js 22 or newer (Node 24 is fine).
-- npm.
-- Python 3.11 recommended for TensorFlow compatibility.
-- A Pinata JWT (or configured supported provider) for real IPFS image/metadata uploads.
-- Real, labelled product packaging images and a trained Siamese model before Gate 2 can produce real match/mismatch results.
+---
 
-## Important: install dependencies on your own computer
+## 2. Problem Statement
 
-Do not copy a `node_modules` folder from another operating system. This ZIP intentionally excludes `node_modules`, `.env`, private keys, generated build files and personal data. Run `npm install` in each Node project folder on the computer where you will run TrustTrace.
+Counterfeit products in packaged food, pharmaceuticals/medicines, and cosmetics pose severe health and economic risks. While many supply-chain systems use QR codes linked to blockchain records, they suffer from a critical **physical-digital gap**:
 
-## Local Windows setup
+1. **QR Code Cloning / Replay Attacks:** A genuine QR code is printed visibly on the outside of a package. Counterfeiters can easily photocopy or reprint that genuine QR code onto thousands of counterfeit packages.
+2. **No Physical Package Verification:** Standard QR scanners only check whether the digital Product ID exists on-chain—they cannot verify whether the physical box in the buyer's hand matches the manufacturer's original packaging.
+3. **Blind to Duplicate Scans Across Locations:** If a copied QR code is scanned simultaneously in different cities within minutes, traditional trackers still show a "Valid" blockchain record.
 
-### 1. Install the existing Hardhat project
+---
 
-Open PowerShell:
+## 3. Proposed 3-Layer Solution
 
+TrustTrace solves this problem by verifying **who** registered the product, **what** the physical package looks like, and **where/when** the QR code is scanned through three independent verification gates:
+
+- **Gate 1 (Layer 1 — Permissioned MST Blockchain Check):**
+  Verifies that the manufacturer was approved by the platform Admin, their EVM wallet is authorized on the `ProductAuth` smart contract, and the scanned Product ID exists on **MST Mainnet (Chain ID: `4646`)**.
+- **Gate 2 (Layer 2 — Siamese CNN Packaging Image Check):**
+  Compares the customer’s live photo of the physical package against the manufacturer’s original registration-time reference photo stored on **Pinata IPFS Cloud** using a **Siamese MobileNetV2 Hybrid CNN** model (`similarity >= 72%` / `distance <= 0.28`).
+- **Gate 3 (Layer 3 — CASPG Scan-Context & Travel-Speed Check):**
+  The **Context-Aware Scan Provenance Graph (CASPG)** records the manufacturer’s GPS origin coordinates at registration and compares them with customer scan GPS locations and timestamps using the **Haversine distance formula**. If the same QR code is scanned across distant locations faster than physically possible (implied speed `> 120 km/h` outside a `2.5 km` local area buffer), TrustTrace flags it as a suspected cloned QR code.
+
+---
+
+## 4. MST Blockchain Implementation & Deployed Smart Contracts
+
+TrustTrace is deployed and verified on the **MST Mainnet** and configured for **MST Testnet**:
+
+| Parameter | Details |
+| :--- | :--- |
+| **Primary Network** | **MST Mainnet** |
+| **Chain ID** | `4646` |
+| **RPC Endpoint** | `https://mariorpc.mstblockchain.com` |
+| **Secondary Network** | **MST Coral Testnet** (`Chain ID: 54635`, RPC: `https://coralrpc.mstblockchain.com`) |
+| **`ProductAuth.sol` Contract Address (MST Mainnet)** | `0xb7A79C5437D00d32A8770a5905B5d1483c91A130` |
+| **`TrustTraceCloudDB.sol` Contract Address (MST Mainnet)** | `0xb3865b1bC48DA803A2d20B737aaA5B90f241768e` |
+| **Solidity Compiler Version** | `0.8.28` / `0.8.34` (EVM Target: `paris`, Optimizer enabled) |
+
+### Sample Verified On-Chain Transactions (MST Mainnet `4646`)
+- **`TrustTraceCloudDB` Deployment Tx:** `0x47b73a2c68bac98305a0d9487e4da7d7a6ba0febc2c6711e5c1b78b0e75ee5a1`
+- **Manufacturer Wallet Authorization Tx (`authorizeManufacturer`):** `0x23b800254c39f5290dc77ed602d6bb504334987ed39bf01ba0f58fd2c606373e`
+- **Product Registration Tx (`registerProductWithDetails`):** `0xef6311fe53ca29839c8d718b9eb0fe05f919b5d3e764f172ccb5d0129c0f7997`
+
+---
+
+## 5. Smart Contract Functionality
+
+### 1. `ProductAuth.sol` (`0xb7A79C5437D00d32A8770a5905B5d1483c91A130`)
+- **`authorizeManufacturer(address _manufacturer)` & `revokeManufacturer(address _manufacturer)`:**
+  Restricted to the contract owner (Admin). Approves or revokes manufacturer EVM wallet addresses on-chain so unapproved accounts cannot register products.
+- **`registerProductWithDetails(...)`:**
+  Verifies that the manufacturer wallet is authorized and the `productId` is unique. Stores core and extended product provenance on-chain (`productId`, `name`, `brand`, `category`, `sku`, `batchNumber`, `unitSerial`, `manufactureDate`, `expiryDate`, `manufacturer`, `referenceImageCID`, `metadataCID`, and `keccak256` `metadataHash`).
+- **`verifyProduct(string _productId)` & `verifyProductDetails(string _productId)`:**
+  Read-only (`view`) functions invoked during Layer 1 verification to fetch canonical product records and IPFS reference image CIDs from MST Mainnet.
+- **`recordScanAudit(string _productId, bytes32 _scanHash, bool _isSuspicious)`:**
+  Increments the product’s on-chain scan counter (`scanCount`), updates `hasSuspiciousScan`, and logs a cryptographic scan audit hash on-chain while preserving user GPS privacy.
+
+### 2. `TrustTraceCloudDB.sol` (`0xb3865b1bC48DA803A2d20B737aaA5B90f241768e`)
+- **`setLatestStateCID(string _cid)` & `latestStateCID()`:**
+  Anchors the latest Pinata IPFS cloud state CID on MST Mainnet, enabling real-time cross-device synchronization between laptops and mobile phones.
+
+---
+
+## 6. System Architecture & Workflow
+
+```mermaid
+flowchart LR
+    subgraph Step1["1. Manufacturer Onboarding"]
+        M["Manufacturer Signup\n+ EVM Wallet"] --> A["Admin Review\n& Approval"]
+        A -->|"authorizeManufacturer()"| MST["MST Mainnet (4646)\nProductAuth Contract"]
+    end
+
+    subgraph Step2["2. Product Registration"]
+        P["Approved Manufacturer\nUploads Packaging Photo"] --> IPFS["Pinata IPFS Cloud\n(Image CID + Metadata JSON)"]
+        P --> GPS["Auto-Captured Factory\nGPS Origin & Timestamp"]
+        IPFS -->|"registerProductWithDetails()"| MST
+        MST --> QR["Generate Unit QR Code"]
+    end
+
+    subgraph Step3["3. Customer 3-Layer Verification"]
+        QR --> L1["Layer 1: MST Mainnet\nRecord Check"]
+        L1 --> L2["Layer 2: Siamese CNN\nPackaging Image Match"]
+        L2 --> L3["Layer 3: CASPG GPS\nDistance & Speed Check"]
+        L3 --> RES["Explainable Result"]
+    end
+```
+
+---
+
+## 7. Key Features Implemented
+
+1. **Controlled Manufacturer Onboarding & Admin Approval Gate:** Manufacturers cannot register products immediately after signup; Admin approval and on-chain wallet authorization are strictly enforced.
+2. **Wallet Selection Helper & Binding:** Manufacturers can select or enter their EVM wallet address during registration, which is bound to their profile and verified on-chain.
+3. **IPFS-Backed Product Registration:** Packaging reference photos and product metadata JSON are pinned to Pinata IPFS Cloud before minting on MST Mainnet.
+4. **Cross-Device QR Code Scanning (Camera + File Upload):** Customers can scan QR codes using their live smartphone/laptop camera or upload a QR image from any device.
+5. **Siamese MobileNetV2 Hybrid CNN (Layer 2):** Compares customer package photos with manufacturer reference photos using deep feature embeddings, HSV histograms, spatial grid descriptors, and 256-bit perceptual `dHash`.
+6. **Automatic GPS Origin & CASPG Travel-Speed Analysis (Layer 3):** Automatically detects GPS coordinates and locality names (via OpenStreetMap Nominatim) and flags impossible travel speeds above `120 km/h`.
+7. **Real-Time Cross-Device Synchronization:** Powered by `TrustTraceCloudDB` on MST Mainnet + Pinata IPFS + PostgreSQL (`Prisma ORM`), so products or accounts created on one device work immediately on any other device.
+
+---
+
+## 8. Technology Stack
+
+- **Frontend:** React 18, Vite 5, Modern Responsive CSS, Lucide React Icons, HTML5 Canvas & Camera APIs
+- **Backend API:** Node.js, Express.js, Multer, Scrypt Password Hashing, Bearer Token Authentication
+- **Database:** PostgreSQL, Prisma ORM (`User`, `ManufacturerApplication`, `Product`, `VerificationSession`, `ScanEvent`, `ImageComparison`, `AuditLog`)
+- **Blockchain:** Solidity (`^0.8.28`), Hardhat 3, Ethers.js v6, MST Mainnet (`Chain ID: 4646`), MST Testnet (`Chain ID: 54635`)
+- **Decentralized Storage:** Pinata IPFS Cloud API (`pinFileToIPFS`, `pinJSONToIPFS`)
+- **AI / Machine Learning:** Python 3.11, FastAPI, TensorFlow / Keras (`siamese_mobilenetv2.keras`), Pillow, NumPy
+- **Geolocation & QR:** Browser Geolocation API, OpenStreetMap Nominatim Reverse Geocoding, `qrcode`, `jsQR`, HTML5 `BarcodeDetector`
+
+---
+
+## 9. Repository Structure
+
+```text
+TrustTrace/
+├── frontend/                       # React + Vite web app & cross-device cloud engine
+│   ├── src/
+│   │   ├── App.jsx                 # Role-based dashboards (Admin, Manufacturer, Customer, VerifyPage)
+│   │   ├── cloudEngine.js          # MST Mainnet + Pinata IPFS + Browser CNN & CASPG sync engine
+│   │   └── App.css                 # Application styling
+│   └── package.json
+├── backend/                        # Node.js + Express REST API
+│   ├── prisma/
+│   │   └── schema.prisma           # PostgreSQL Prisma database schema
+│   ├── src/
+│   │   ├── controllers/            # Auth, Admin, Product, and Verification controllers
+│   │   ├── services/               # Blockchain, Pinata IPFS, CASPG, QR, ML, and Store services
+│   │   └── routes/                 # API routes
+│   ├── server.js                   # Express server entry point
+│   └── package.json
+├── trusttrace-blockchain/          # Hardhat 3 & Solidity smart contracts
+│   ├── contracts/
+│   │   ├── ProductAuth.sol         # Core manufacturer authorization & product registry contract
+│   │   └── TrustTraceCloudDB.sol   # Cross-device cloud state CID contract
+│   ├── test/                       # Smart contract unit tests
+│   └── hardhat.config.ts           # Hardhat network config (MST Mainnet 4646 & MST Testnet)
+└── ml-service/                     # Python FastAPI Siamese CNN microservice
+    ├── app.py                      # FastAPI inference API (/compare, /health)
+    ├── models/                     # Trained Siamese MobileNetV2 weights & threshold metadata
+    ├── scripts/                    # Dataset splitting, pair generation, and training scripts
+    └── requirements.txt
+```
+
+---
+
+## 10. Step-by-Step Local Setup & Execution Guide
+
+### Prerequisites
+- **Node.js** (v20 or newer) and **npm**
+- **Python** (v3.10 or v3.11 recommended for TensorFlow)
+- **PostgreSQL** (optional for local development; `STORAGE_MODE=file` is supported out-of-the-box and syncs with `TrustTraceCloudDB`)
+
+### Step 1: Clone the Repository
+```powershell
+git clone https://github.com/vaishnavivarad/trusttrace.git
+cd trusttrace
+```
+
+### Step 2: Install & Compile Smart Contracts (Optional — Contracts are already deployed on MST Mainnet)
 ```powershell
 cd trusttrace-blockchain
 npm install
+npx hardhat compile
 ```
 
-### 2. Start the local Hardhat blockchain
-
-Open **Terminal 1**:
-
+### Step 3: Configure & Start the Backend Server (`Port 5000`)
 ```powershell
-cd trusttrace-blockchain
-npm run node:local
-```
-
-Leave this terminal running. The node prints local test accounts and their development-only private keys. Use an account from this local node for deployment/testing only. Never use a Hardhat test key on a public network or with real funds.
-
-### 3. Deploy the updated ProductAuth contract
-
-Open **Terminal 2**:
-
-```powershell
-cd trusttrace-blockchain
-$env:LOCALHOST_PRIVATE_KEY = "PASTE_A_PRIVATE_KEY_PRINTED_BY_YOUR_LOCAL_HARDHAT_NODE"
-npm run deploy:local
-```
-
-Copy the deployed `ProductAuth` address from the output. The account selected for deployment becomes the contract owner. The local chain is temporary: restarting it normally clears its records, so redeploy the contract and re-register products after a reset.
-
-### 4. Configure and run the backend
-
-In PowerShell:
-
-```powershell
-cd backend
+cd ../backend
+npm install
 Copy-Item .env.example .env
-notepad .env
-npm install
 ```
+Ensure your `backend/.env` is configured for MST Mainnet (`Chain ID: 4646`) and Pinata IPFS:
+```env
+PORT=5000
+STORAGE_MODE=file
+BLOCKCHAIN_RPC_URL=https://mariorpc.mstblockchain.com
+BLOCKCHAIN_CHAIN_ID=4646
+BLOCKCHAIN_CONTRACT_ADDRESS=0xb7A79C5437D00d32A8770a5905B5d1483c91A130
+IPFS_PROVIDER=pinata
+IPFS_GATEWAY_URL=https://gateway.pinata.cloud/ipfs
+ML_SERVICE_URL=http://127.0.0.1:8000
+MAX_PLAUSIBLE_SPEED_KMH=120
+```
+*(To use PostgreSQL mode, set `STORAGE_MODE=postgres`, provide `DATABASE_URL`, and run `npx prisma generate` and `npx prisma migrate dev`.)*
 
-Fill in these values in `backend/.env`:
-
-- `SESSION_SECRET`: replace the placeholder with a long random secret.
-- `BLOCKCHAIN_CONTRACT_ADDRESS`: the address printed after deployment.
-- `BLOCKCHAIN_RPC_URL=http://127.0.0.1:8545`
-- `BLOCKCHAIN_CHAIN_ID=31337` for the local Hardhat node.
-- `BLOCKCHAIN_RELAYER_PRIVATE_KEY`: the same **local Hardhat owner account** used to deploy `ProductAuth`. This backend account submits on-chain manufacturer authorization, product registration and audit transactions. Never commit this value.
-- `PINATA_JWT`: a real Pinata JWT for real image/metadata uploads.
-- `APP_BASE_URL=http://localhost:5173` for same-computer browser testing.
-- `FRONTEND_ORIGIN=http://localhost:5173`.
-- Choose a private `SEED_ADMIN_PASSWORD` of at least 12 characters.
-
-By default, `STORAGE_MODE=file` stores application-only records in `backend/data/trusttrace-store.json` so that local UI testing does not require PostgreSQL. This file is created at runtime and is ignored by git. For persistent database mode, set `STORAGE_MODE=postgres`, set `DATABASE_URL`, then run `npx prisma generate` and `npx prisma migrate dev --name init` before starting the backend.
-
-Create the initial local admin account:
-
+Seed the initial Admin account and start the backend:
 ```powershell
 npm run seed:admin
+npm run dev
 ```
+Verify backend health at: `http://localhost:5000/api/health`
 
-Start the API:
-
-```powershell
-npm start
-```
-
-Check `http://localhost:5000/api/health`. The response explicitly reports whether the blockchain is reachable and whether IPFS/ML configuration is present.
-
-### 5. Run the CNN service
-
-The uploaded source ZIP did **not** contain a real labelled food/cosmetics/medicine packaging dataset or a trained model file. The included dataset folders and CSV files are templates, not a trained dataset. Gate 2 will intentionally report `MODEL_NOT_CONFIGURED` until the team supplies the actual dataset, trains/evaluates the model, and creates `models/siamese_mobilenetv2.keras` plus a validated threshold.
-
-Create the Python environment from a new terminal:
-
+### Step 4: Start the Python Siamese CNN Microservice (`Port 8000`)
+Open a new terminal:
 ```powershell
 cd ml-service
-py -3.11 -m venv .venv
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
 pip install -r requirements.txt
+python -m uvicorn app:app --host 127.0.0.1 --port 8000
 ```
+Verify ML service health at: `http://127.0.0.1:8000/health`
 
-Start the service:
-
-```powershell
-uvicorn app:app --host 127.0.0.1 --port 8000
-```
-
-Check `http://127.0.0.1:8000/health`. Before training, it is expected to return `not_configured`; this is deliberate and must not be treated as a successful image match.
-
-#### Dataset preparation (after real images are collected)
-
-From the `ml-service/` directory, fill `dataset/metadata/products.csv`, `images.csv` and `image_sources.csv`. Store image paths relative to `dataset/`, e.g. `images/genuine/food/unit001_front.jpg`. Each physical product unit needs a unique `unit_id`; capture multiple views of the same unit for positive pairs. The split utility needs at least 6 separate units and keeps at least 2 units in each split. Use `simulated_modified` only for controlled modifications and use `verified_counterfeit` only when counterfeit status is independently verified.
-
-```powershell
-python scripts/split_by_unit.py --metadata dataset/metadata/images.csv --out dataset/metadata/split_manifest.csv
-python scripts/create_pairs.py --images dataset/metadata/images.csv --splits dataset/metadata/split_manifest.csv --out dataset/metadata/pairs.csv
-python scripts/validate_dataset.py --root dataset --images dataset/metadata/images.csv --splits dataset/metadata/split_manifest.csv
-python scripts/train_siamese.py --pairs dataset/metadata/pairs.csv --image-root dataset --out-dir models --epochs 12
-```
-
-Do not report accuracy until the dataset has independent training/validation/test units and `models/evaluation_report.json` has been generated. A small or synthetic dataset may be suitable for pipeline testing but is not evidence of real-world counterfeit-detection accuracy.
-
-### 6. Run the frontend
-
-Open another terminal:
-
+### Step 5: Start the Frontend Web App (`Port 5173`)
+Open a new terminal:
 ```powershell
 cd frontend
 npm install
-Copy-Item .env.example .env
 npm run dev
 ```
+Open `http://localhost:5173` in your browser.
 
-Open the Vite URL printed in the terminal (normally `http://localhost:5173`). The frontend talks to `http://localhost:5000/api` by default. The browser camera/geolocation APIs require localhost or HTTPS. For phone-based QR testing, the QR's `APP_BASE_URL` must be a host/tunnel that the phone can reach; `localhost` on the phone points to the phone itself, not the laptop.
+---
 
-## User roles and first demo
+## 11. Step-by-Step Demo & Evaluation Walkthrough
 
-1. Log in using the seeded admin credentials. The admin account is created by `npm run seed:admin`.
-2. Sign up as a manufacturer with a dedicated local/test wallet address.
-3. In the admin dashboard, approve the application. This submits an on-chain `authorizeManufacturer` transaction from the configured contract-owner relayer account.
-4. Log in as the approved manufacturer. Register a product and upload its manufacturing-time packaging photo. The system uploads the photo/metadata to IPFS, verifies the CID can be fetched, registers the record on-chain, verifies the transaction, and only then creates a QR code.
-5. Sign in as a customer and scan the QR or enter the Product ID. Gate 1 checks the blockchain record; Gate 2 asks for a packaging image; Gate 3 asks for location permission.
-6. Keep the three services running while testing: Hardhat node, backend, and frontend. Run the ML service as well after installing its requirements. Gate 2 stays unconfigured until a real model and threshold are available.
+Judges and evaluators can test the complete workflow directly on our **Live Cloud Web App** ([https://vaishnavivarad.github.io/trusttrace/](https://vaishnavivarad.github.io/trusttrace/)) or locally:
 
-## Tests and actual validation status
+1. **Step 1 — Manufacturer Signup:**
+   - Go to **Create account** → Choose **Manufacturer**.
+   - Fill in your Name, Email, Password, Company Name, Business Email, Contact Name, Product Category, and select/enter an EVM Wallet Address.
+   - Notice that after signing up, your status is **`PENDING`** and product registration is locked until Admin approval.
+2. **Step 2 — Admin Approval & On-Chain Wallet Authorization:**
+   - Sign in as **Admin** (`admin@trusttrace.local`).
+   - Open the **Admin Dashboard** → Review the pending manufacturer application and click **Approve**.
+   - The system authorizes the manufacturer's wallet on the MST Mainnet `ProductAuth` smart contract (`authorizeManufacturer`).
+3. **Step 3 — Product Registration (Pinata IPFS + MST Mainnet + QR Generation):**
+   - Sign back in as the approved **Manufacturer** → Go to **Register product**.
+   - Enter Product Name, Brand, Category, SKU, Batch Number, Unique Unit Serial, Manufacturing/Expiry Dates, and upload a clear reference packaging photo.
+   - Your GPS Origin Location is detected automatically. Click **Register product & generate QR**.
+   - The reference photo and metadata are pinned to Pinata IPFS, the record is stored on MST Mainnet (`4646`), and a downloadable QR code is generated under **My products**.
+4. **Step 4 — Customer Cross-Device QR Scan & 3-Layer Verification:**
+   - Open the app on any **smartphone or computer** and sign in as a **Customer** (or click **Scan QR**).
+   - Scan the generated QR code using the **Live Camera QR Scanner** or **Upload / Scan QR Image**.
+   - **Layer 1 Result:** Displays the official MST Mainnet registration details and Pinata IPFS reference packaging photo.
+   - **Layer 2 Result:** Upload/capture the product packaging photo to run the **Siamese CNN visual comparison** (passes if packaging matches; fails immediately if a different package photo is uploaded).
+   - **Layer 3 Result:** Automatically checks the customer's GPS coordinates and elapsed time against the manufacturer's origin / previous scan using the **CASPG velocity check (`<= 120 km/h`)** and displays the final verification verdict.
 
-`ProductAuth.getScanCount(productId)` reports the total scan/audit count maintained by the product record, including privacy-safe web audit events. `getLocationScanRecordCount(productId)` is only for the legacy coordinate-bearing demo records. The web application must keep detailed GPS off-chain and use `recordScanAudit` for a hash/status audit.
+---
 
-The backend test suite also checks the actual QR PNG output and confirms that missing IPFS/blockchain configuration is reported as an error rather than a successful verification.
+## 12. Third-Party Libraries, Credits & Licenses
 
+All third-party open-source frameworks, libraries, and public APIs used in this project are properly credited below and comply with their respective open-source licenses:
 
-Backend built-in tests:
+| Library / Service | Purpose in TrustTrace | License |
+| :--- | :--- | :--- |
+| **React & React DOM** (`react`, `react-dom`) | Frontend user interface components and state management | MIT License |
+| **Vite** (`vite`) | Frontend build tool and development bundler | MIT License |
+| **Lucide React** (`lucide-react`) | UI icons across dashboards and verification screens | ISC License |
+| **Node.js & Express** (`express`, `cors`, `dotenv`, `multer`) | Backend REST API server and multipart image upload handling | MIT License |
+| **Prisma ORM & PostgreSQL** (`@prisma/client`, `prisma`) | Relational database schema and ORM queries | Apache-2.0 / PostgreSQL License |
+| **Hardhat & Ethers.js v6** (`hardhat`, `ethers`) | Solidity compilation, deployment, and MST Blockchain RPC interaction | MIT License |
+| **Solidity** (`solc`) | Smart contract programming language (`ProductAuth.sol`, `TrustTraceCloudDB.sol`) | GPL-3.0 / MIT |
+| **TensorFlow & Keras** (`tensorflow`, `keras`, `numpy`, `Pillow`) | Siamese MobileNetV2 CNN architecture and image processing | Apache-2.0 / BSD License |
+| **FastAPI & Uvicorn** (`fastapi`, `uvicorn`) | Python microservice for Siamese CNN image similarity inference | MIT / BSD-3-Clause License |
+| **QRCode & jsQR** (`qrcode`, `jsQR`, `pngjs`) | QR code PNG generation and client/server QR decoding | MIT / Apache-2.0 License |
+| **Pinata IPFS API** (`pinata.cloud`) | Decentralized IPFS pinning for reference images and metadata JSON | Pinata Developer Terms |
+| **OpenStreetMap Nominatim API** | Reverse geocoding of GPS coordinates into human-readable locality names | ODbL (Open Database License) |
 
-```powershell
-cd backend
-npm test
-```
+---
 
-Frontend lint:
+## 13. Originality Declaration & Team Details
 
-```powershell
-cd frontend
-npm run lint
-```
+### Declaration of Originality
+We hereby confirm that **TrustTrace** submitted for the **MST Blockchain BUILDATHON 2026** is an original project designed and developed by our team. The complete source code is publicly accessible in this GitHub repository for review and evaluation by the organizers. All third-party libraries, tools, and APIs used have been appropriately credited above in compliance with their respective licenses.
 
-Hardhat compile/tests:
+### Team Members — Department of CSE (Data Science)
+- Vaishnavi Patil
+- Siddhi Khambare
+- Sakshi Mahapure
+- Shravani Khot
 
-```powershell
-cd trusttrace-blockchain
-npm run build
-npm test
-```
-
-Python syntax check (optional):
-
-```powershell
-cd ml-service
-python -m compileall .
-```
-
-The source bundle has been syntax-checked for backend JavaScript, the backend unit test suite includes password/session/Haversine/CASPG cases, the frontend ESLint check passes, and Python files compile. Hardhat compile/tests and Vite production build could not be completed in this Linux build container because the provided original `node_modules` were Windows-specific and lacked their Linux optional binaries. This ZIP excludes `node_modules`; run `npm install` on your Windows laptop and run the commands above there. Do not interpret these environment-specific build blockers as a passed build.
-
-## Honest system limitations
-
-- An unregistered Product ID can be flagged only when the correct blockchain/network was successfully queried. An RPC failure is “verification unavailable”, not “fake”.
-- A copied QR that points to a real product will pass Gate 1; Gate 2 and Gate 3 then run.
-- Siamese CNN packaging comparison is not a chemical/product-source test; near-identical counterfeit packaging may match. Camera angle, glare and lighting can also cause false mismatches.
-- CASPG's speed threshold is a heuristic. A fake scan at a plausible location/time interval may not be detected. GPS can be inaccurate or spoofed.
-- If location permission is denied, Gate 3 is unavailable/partial; the app does not invent coordinates.
-- A successful result means “No suspicious signals detected,” not guaranteed genuine.
-- The uploaded source did not contain real product dataset images or trained Siamese weights. The included dataset structure is ready for data collection, not a claim that training has already happened.
-
-## Secrets and safety
-
-Never commit `.env` files, Pinata JWTs, real wallet private keys, session secrets or customer GPS data. Use only Hardhat development keys on the local test chain. Do not publish precise customer coordinates to a public blockchain. The application keeps detailed scan coordinates off-chain and anchors a minimal audit hash/status on-chain.
+**Project Guide:** Prof. Dhammjyoti Dhawase
